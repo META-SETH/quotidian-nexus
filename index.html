@@ -3,61 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#050510">
+<meta name="theme-color" content="#06040F">
 <title>QUOTIDIAN NEXUS</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g'><stop offset='0%' stop-color='%23f0c989'/><stop offset='100%' stop-color='%23f0c989' stop-opacity='0'/></radialGradient></defs><circle cx='50' cy='50' r='40' fill='url(%23g)'/><circle cx='50' cy='50' r='12' fill='%23f0c989'/></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
-<script src="https://unpkg.com/3d-force-graph@1.73.4/dist/3d-force-graph.min.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g'><stop offset='0%' stop-color='%2300FFE0'/><stop offset='100%' stop-color='%2300FFE0' stop-opacity='0'/></radialGradient></defs><circle cx='50' cy='50' r='40' fill='url(%23g)'/><circle cx='50' cy='50' r='12' fill='%2300FFE0'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Three.js r160 + addons from CDN -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root {
-  --void: #050510;
-  --void-2: #08081a;
-  --panel: rgba(8, 8, 26, 0.85);
-  --panel-solid: #0c0c20;
-  --border: rgba(240, 201, 137, 0.18);
-  --border-bright: rgba(240, 201, 137, 0.5);
-  --text: #e8e2d4;
-  --text-dim: #8a8470;
-  --text-mute: #4a4640;
-  --gold: #f0c989;
-  --gold-bright: #ffd9a0;
-  --gold-deep: #8a6f44;
-  --node-thinker: #f0c989;
-  --node-theme: #6aa0e0;
-  --node-tradition: #d8736a;
-  --good: #7ccc8c;
-  --warn: #e0a35e;
-  --crimson: #d65a5a;
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', Consolas, monospace;
+  /* ── GLITCHWAVE VOID ── */
+  --void:         #06040F;
+  --void-2:       #0A0716;
+  --void-3:       #0F0B1E;
+  --panel:        rgba(10, 7, 22, 0.88);
+  --panel-solid:  #0A0716;
+  --border:       rgba(0,255,224, 0.14);
+  --border-hi:    rgba(0,255,224, 0.45);
+
+  /* ── GLITCHWAVE SPECTRUM ── */
+  --cyan:         #00FFE0;     /* primary accent — electric teal */
+  --cyan-dim:     #00BFA8;
+  --cyan-glow:    rgba(0,255,224,0.18);
+  --magenta:      #FF2D78;     /* hot pink — cross-cluster */
+  --magenta-dim:  #C01555;
+  --acid:         #AAFF00;     /* acid green — themes */
+  --acid-dim:     #6BAA00;
+  --violet:       #9D00FF;     /* deep violet — tradition spheres */
+  --violet-dim:   #6600BB;
+  --orange:       #FF6B1A;     /* hot orange — thinker spheres */
+  --orange-dim:   #CC4400;
+  --glitch-white: #E8E8FF;
+  --text:         #C8C0E8;
+  --text-dim:     #6A6080;
+  --text-mute:    #3A3050;
+
+  /* ── NODE TYPE COLORS ── */
+  --node-thinker:   #FF6B1A;
+  --node-tradition: #9D00FF;
+  --node-theme:     #AAFF00;
+
+  /* ── SPHERE PALETTE (cluster shells) ── */
+  --sphere-thinker:   #FF6B1A;
+  --sphere-tradition: #9D00FF;
+  --sphere-theme:     #00FFE0;
+
+  /* ── FONTS ── */
+  --font-display: 'Orbitron', 'Inter', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', Consolas, monospace;
 }
 
-html, body { height:100%; width:100%; overflow:hidden; background:var(--void); color:var(--text); font-family:var(--font-body); user-select:none; -webkit-user-select:none; }
+html, body {
+  height:100%; width:100%; overflow:hidden;
+  background:var(--void); color:var(--text);
+  font-family:var(--font-body);
+  user-select:none; -webkit-user-select:none;
+}
 
-/* ───────────── ATMOSPHERIC LAYERS ───────────── */
-.atmosphere {
+/* ───────────── SCANLINE / GRAIN ATMOSPHERE ───────────── */
+.atmo-grain {
   position:fixed; inset:0; pointer-events:none; z-index:10;
-  background:
-    radial-gradient(ellipse 70% 50% at 25% 30%, rgba(240, 201, 137, 0.04), transparent 60%),
-    radial-gradient(ellipse 60% 40% at 75% 70%, rgba(106, 160, 224, 0.03), transparent 60%),
-    radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0,0,0,0.4) 100%);
+  opacity:0.12; mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0  0 0 0 0 0.4  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
-.grain {
-  position:fixed; inset:0; pointer-events:none; z-index:11; opacity:0.18; mix-blend-mode:overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+.atmo-scanlines {
+  position:fixed; inset:0; pointer-events:none; z-index:11; opacity:0.03;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,224,0.5) 2px, rgba(0,255,224,0.5) 3px);
 }
-.scanlines {
-  position:fixed; inset:0; pointer-events:none; z-index:12; opacity:0.025;
-  background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(255,255,255,0.5) 2px, rgba(255,255,255,0.5) 3px);
+.atmo-vignette {
+  position:fixed; inset:0; pointer-events:none; z-index:12;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(6,4,15,0.65) 100%);
 }
-.vignette {
-  position:fixed; inset:0; pointer-events:none; z-index:13;
-  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%);
+/* glitch flicker on body */
+@keyframes glitch-flicker {
+  0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:0.85} 94%{opacity:1} 96%{opacity:0.9} 97%{opacity:1}
 }
+body { animation: glitch-flicker 8s infinite; }
 
 /* ───────────── BOOT SEQUENCE ───────────── */
 .boot {
@@ -65,536 +97,393 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
   background:var(--void); color:var(--text);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   font-family:var(--font-mono);
-  transition:opacity 0.8s, visibility 0.8s;
+  transition:opacity 0.6s, visibility 0.6s;
 }
 .boot.hidden { opacity:0; visibility:hidden; pointer-events:none; }
-.boot-glyph {
+
+.boot-sphere-wrap {
   position:relative;
-  width:120px; height:120px;
+  width:140px; height:140px;
   margin-bottom:2.5rem;
 }
-.boot-glyph::before, .boot-glyph::after {
-  content:''; position:absolute; inset:0;
-  border:1px solid var(--gold);
+/* CSS 3-sphere wireframe simulation for boot */
+.boot-sphere-wrap canvas {
+  position:absolute; inset:0; border-radius:50%;
+}
+.boot-sphere-ring {
+  position:absolute; inset:0;
   border-radius:50%;
-  animation: rotate 8s linear infinite;
+  border:1px solid var(--cyan);
+  opacity:0.7;
+  animation: spin-x 6s linear infinite;
+  transform-style:preserve-3d;
 }
-.boot-glyph::after {
-  inset:15px;
-  border-color:var(--gold-deep);
+.boot-sphere-ring:nth-child(2) {
+  border-color:var(--magenta);
   border-style:dashed;
-  animation-duration:5s;
-  animation-direction:reverse;
+  animation: spin-y 4s linear infinite reverse;
+  opacity:0.5;
 }
-.boot-glyph-core {
+.boot-sphere-ring:nth-child(3) {
+  inset:20px;
+  border-color:var(--violet);
+  animation: spin-z 9s linear infinite;
+  opacity:0.4;
+}
+@keyframes spin-x { to { transform: rotateX(360deg); } }
+@keyframes spin-y { to { transform: rotateY(360deg); } }
+@keyframes spin-z { to { transform: rotate(360deg); } }
+.boot-sphere-core {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
   font-family:var(--font-display);
-  font-size:2.5rem; color:var(--gold);
-  font-style:italic;
-  text-shadow: 0 0 20px var(--gold);
+  font-size:1.6rem; font-weight:800;
+  color:var(--cyan);
+  text-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan);
+  letter-spacing:0.05em;
 }
-@keyframes rotate { to { transform: rotate(360deg); } }
 
-.boot-name {
+.boot-title {
   font-family:var(--font-display);
-  font-size:3rem; font-weight:500;
-  letter-spacing:0.05em; margin-bottom:0.3rem;
+  font-size:2rem; font-weight:700;
+  letter-spacing:0.12em;
+  color:var(--glitch-white);
+  text-shadow: 2px 0 0 var(--magenta), -2px 0 0 var(--cyan);
+  margin-bottom:0.3rem;
 }
-.boot-name .accent { color:var(--gold); font-style:italic; }
 .boot-tag {
-  font-family:var(--font-mono);
-  font-size:0.7rem; letter-spacing:0.4em;
+  font-size:0.65rem; letter-spacing:0.5em;
   text-transform:uppercase; color:var(--text-dim);
-  margin-bottom:3rem;
+  margin-bottom:2.5rem;
 }
 .boot-log {
-  font-size:0.7rem;
-  width:380px; max-width:90vw;
-  height:120px; overflow:hidden;
-  color:var(--text-dim);
+  font-size:0.68rem; width:420px; max-width:90vw;
+  height:110px; overflow:hidden; color:var(--text-dim);
+  text-shadow:0 0 8px var(--cyan-dim);
 }
-.boot-log-line {
-  opacity:0; animation: bootLine 0.3s forwards;
-}
-.boot-log-line.ok::after { content:' [OK]'; color:var(--good); }
-.boot-log-line.warn::after { content:' […]'; color:var(--warn); }
-@keyframes bootLine { to { opacity:1; } }
+.boot-log-line { opacity:0; animation:lineIn 0.2s forwards; }
+.boot-log-line.ok::after { content:' [OK]'; color:var(--acid); }
+.boot-log-line.warn::after { content:' [...]'; color:var(--orange); }
+.boot-log-line.err::after { content:' [ERR]'; color:var(--magenta); }
+@keyframes lineIn { to { opacity:1; } }
 
 .boot-progress {
-  width:380px; max-width:90vw; height:2px;
-  background: rgba(240, 201, 137, 0.1);
-  position:relative; overflow:hidden;
-  margin-top:1rem;
+  width:420px; max-width:90vw; height:2px;
+  background:rgba(0,255,224,0.08); position:relative; overflow:hidden; margin-top:0.8rem;
 }
 .boot-progress-bar {
-  position:absolute; left:0; top:0; bottom:0;
-  background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright));
-  width:0%; transition: width 0.3s;
-  box-shadow: 0 0 12px var(--gold);
+  position:absolute; left:0; top:0; bottom:0; width:0%;
+  background: linear-gradient(90deg, var(--violet), var(--cyan), var(--acid));
+  transition:width 0.25s;
+  box-shadow:0 0 16px var(--cyan);
 }
 .boot-meta {
-  margin-top:0.8rem;
-  display:flex; justify-content:space-between;
-  width:380px; max-width:90vw;
-  font-size:0.65rem; color:var(--text-mute);
-  letter-spacing:0.2em; text-transform:uppercase;
+  margin-top:0.6rem; display:flex; justify-content:space-between;
+  width:420px; max-width:90vw;
+  font-size:0.6rem; color:var(--text-mute); letter-spacing:0.25em; text-transform:uppercase;
 }
-
 .boot-enter {
-  margin-top:2.5rem;
-  background:transparent;
-  color:var(--gold);
-  border:1px solid var(--gold);
-  padding:0.9rem 3rem;
-  font-family:var(--font-mono);
-  font-size:0.75rem; letter-spacing:0.4em;
-  text-transform:uppercase; cursor:pointer;
-  opacity:0; transition:all 0.3s;
-  position:relative; overflow:hidden;
+  margin-top:2rem; background:transparent;
+  color:var(--cyan); border:1px solid var(--cyan);
+  padding:0.8rem 3rem; font-family:var(--font-mono);
+  font-size:0.72rem; letter-spacing:0.45em; text-transform:uppercase;
+  cursor:pointer; opacity:0; transition:all 0.3s;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
 .boot-enter.ready { opacity:1; }
 .boot-enter:hover {
-  background:var(--gold);
-  color:var(--void);
-  box-shadow:0 0 30px var(--gold);
+  background:var(--cyan); color:var(--void);
+  box-shadow:0 0 40px var(--cyan), 0 0 80px var(--cyan-dim);
 }
-.boot-enter::before {
-  content:''; position:absolute; top:0; bottom:0; left:-100%; width:50%;
-  background: linear-gradient(90deg, transparent, rgba(240,201,137,0.3), transparent);
-  animation: sweep 2s infinite;
-}
-.boot-enter.ready::before { display:none; }
-@keyframes sweep { to { left:200%; } }
 
 /* ───────────── 3D CANVAS ───────────── */
-#graph { position:fixed; inset:0; z-index:5; }
-#graph canvas { display:block; }
+#canvas-wrap { position:fixed; inset:0; z-index:5; }
+#canvas-wrap canvas { display:block; }
 
 /* ───────────── HUD ───────────── */
-.hud { position:fixed; z-index:20; pointer-events:none; font-family:var(--font-mono); }
+.hud { position:fixed; z-index:20; pointer-events:none; }
 .hud > * { pointer-events:auto; }
 
 /* Top-left brand */
-.hud-tl {
-  top:1.5rem; left:1.5rem;
-  display:flex; flex-direction:column; gap:0.3rem;
-}
+.hud-tl { top:1.5rem; left:1.5rem; display:flex; flex-direction:column; gap:0.25rem; }
 .brand-mark {
   font-family:var(--font-display);
-  font-size:1.4rem; font-weight:500;
-  letter-spacing:0.02em; line-height:1;
-  text-shadow:0 0 20px rgba(0,0,0,0.8);
+  font-size:1.1rem; font-weight:700;
+  letter-spacing:0.15em; line-height:1;
+  color:var(--glitch-white);
+  text-shadow: 1px 0 0 var(--magenta), -1px 0 0 var(--cyan);
 }
-.brand-mark .accent { color:var(--gold); font-style:italic; }
 .brand-sub {
-  font-family:var(--font-mono);
-  font-size:0.6rem; letter-spacing:0.35em;
-  color:var(--text-dim); text-transform:uppercase;
-  margin-top:0.15rem;
+  font-family:var(--font-mono); font-size:0.58rem; letter-spacing:0.35em;
+  color:var(--text-dim); text-transform:uppercase; margin-top:0.1rem;
+}
+.brand-ver {
+  font-family:var(--font-mono); font-size:0.55rem; letter-spacing:0.2em;
+  color:var(--cyan-dim); opacity:0.6;
 }
 
 /* Top-right search */
-.hud-tr {
-  top:1.5rem; right:1.5rem;
-  display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;
-}
+.hud-tr { top:1.5rem; right:1.5rem; display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem; }
 .search-shell {
-  position:relative;
-  background:var(--panel);
-  backdrop-filter:blur(20px);
-  border:1px solid var(--border);
-  padding:0.5rem 0.8rem;
+  background:var(--panel); backdrop-filter:blur(20px);
+  border:1px solid var(--border); padding:0.5rem 0.8rem;
   display:flex; align-items:center; gap:0.5rem;
-  width:280px; transition:all 0.25s;
+  width:270px; transition:all 0.25s;
   clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
-.search-shell:focus-within { border-color:var(--gold); width:340px; box-shadow:0 0 25px rgba(240,201,137,0.15); }
-.search-shell .icon { font-family:var(--font-mono); color:var(--gold); font-size:0.85rem; }
+.search-shell:focus-within {
+  border-color:var(--cyan); width:330px;
+  box-shadow:0 0 20px rgba(0,255,224,0.12), inset 0 0 20px rgba(0,255,224,0.03);
+}
+.search-icon { color:var(--cyan); font-family:var(--font-mono); font-size:0.85rem; }
 .search-input {
   flex:1; background:transparent; border:none;
-  color:var(--text); font-size:0.8rem;
-  font-family:var(--font-mono);
+  color:var(--text); font-size:0.78rem; font-family:var(--font-mono);
   outline:none; letter-spacing:0.02em;
 }
 .search-input::placeholder { color:var(--text-mute); font-style:italic; }
 .search-key {
-  font-size:0.6rem; color:var(--text-mute);
-  background:rgba(255,255,255,0.05);
-  padding:0.1rem 0.35rem; border-radius:3px;
-  letter-spacing:0.1em;
+  font-size:0.58rem; color:var(--text-mute);
+  background:rgba(0,255,224,0.05); padding:0.1rem 0.3rem; border-radius:3px;
 }
 .search-results {
-  background:var(--panel-solid);
-  border:1px solid var(--border);
-  width:340px; max-height:380px; overflow-y:auto;
-  display:none;
+  background:var(--panel-solid); border:1px solid var(--border);
+  width:330px; max-height:360px; overflow-y:auto; display:none;
   clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
 .search-results.open { display:block; }
 .search-result {
-  padding:0.6rem 0.85rem; cursor:pointer;
-  border-bottom:1px solid rgba(240,201,137,0.08);
-  transition:background 0.12s;
-  display:flex; align-items:center; gap:0.7rem;
+  padding:0.55rem 0.8rem; cursor:pointer;
+  border-bottom:1px solid rgba(0,255,224,0.05);
+  display:flex; align-items:center; gap:0.65rem; transition:background 0.12s;
 }
-.search-result:hover { background:rgba(240,201,137,0.06); }
-.search-result:last-child { border-bottom:none; }
-.sr-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-.sr-text { flex:1; }
-.sr-title { font-size:0.8rem; color:var(--text); font-family:var(--font-body); }
-.sr-meta { font-size:0.65rem; color:var(--text-mute); margin-top:0.15rem; font-family:var(--font-mono); letter-spacing:0.05em; }
+.search-result:hover { background:rgba(0,255,224,0.05); }
+.sr-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.sr-title { font-size:0.78rem; color:var(--text); }
+.sr-meta { font-size:0.62rem; color:var(--text-dim); font-family:var(--font-mono); margin-top:0.1rem; letter-spacing:0.05em; }
 
-/* Crosshair reticle */
+/* Center reticle */
 .reticle {
-  position:fixed; top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  width:24px; height:24px;
-  pointer-events:none; z-index:18;
-  opacity:0.25; transition:opacity 0.4s;
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:22px; height:22px; pointer-events:none; z-index:18;
+  opacity:0.3; transition:opacity 0.3s;
 }
 .reticle::before, .reticle::after {
-  content:''; position:absolute; background:var(--gold); pointer-events:none;
+  content:''; position:absolute; background:var(--cyan);
 }
-.reticle::before {
-  top:50%; left:0; right:0; height:1px; transform:translateY(-50%);
-}
-.reticle::after {
-  left:50%; top:0; bottom:0; width:1px; transform:translateX(-50%);
-}
+.reticle::before { top:50%; left:0; right:0; height:1px; transform:translateY(-50%); }
+.reticle::after  { left:50%; top:0; bottom:0; width:1px; transform:translateX(-50%); }
 .reticle.hidden { opacity:0; }
 
-/* Bottom-left HUD: filters + telemetry */
-.hud-bl {
-  bottom:1.5rem; left:1.5rem;
-  display:flex; flex-direction:column; gap:0.6rem;
-}
+/* Bottom-left filters + telemetry */
+.hud-bl { bottom:1.5rem; left:1.5rem; display:flex; flex-direction:column; gap:0.5rem; }
 .hud-panel {
-  background:var(--panel);
-  backdrop-filter:blur(20px);
-  border:1px solid var(--border);
-  padding:0.85rem 1rem;
+  background:var(--panel); backdrop-filter:blur(20px);
+  border:1px solid var(--border); padding:0.8rem 0.95rem;
   clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-  min-width:230px;
+  min-width:220px;
 }
 .hud-panel h5 {
-  font-family:var(--font-mono);
-  font-size:0.6rem; font-weight:500;
-  letter-spacing:0.3em; text-transform:uppercase;
-  color:var(--gold-deep);
-  margin-bottom:0.6rem;
-  display:flex; justify-content:space-between; align-items:center;
+  font-family:var(--font-mono); font-size:0.58rem; font-weight:600;
+  letter-spacing:0.35em; text-transform:uppercase;
+  color:var(--cyan-dim); margin-bottom:0.55rem;
+  display:flex; align-items:center; gap:0.4rem;
 }
-.hud-panel h5::before {
-  content:'▸'; font-size:0.55rem; opacity:0.6;
-}
+.hud-panel h5::before { content:'▸'; font-size:0.5rem; }
+
 .filter-item {
-  display:flex; align-items:center; gap:0.55rem;
-  padding:0.3rem 0; cursor:pointer; user-select:none;
-  font-size:0.72rem; color:var(--text-dim); transition:color 0.15s;
+  display:flex; align-items:center; gap:0.5rem;
+  padding:0.25rem 0; cursor:pointer;
+  font-size:0.7rem; color:var(--text-dim); transition:color 0.15s;
 }
 .filter-item:hover { color:var(--text); }
-.filter-item.muted { opacity:0.3; }
-.filter-item .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; box-shadow:0 0 8px currentColor; }
-.filter-item .label { flex:1; font-family:var(--font-body); letter-spacing:0.02em; }
-.filter-item .count {
-  font-family:var(--font-mono); font-size:0.65rem;
-  color:var(--text-mute); letter-spacing:0.05em;
+.filter-item.muted { opacity:0.28; }
+.fi-sphere {
+  width:14px; height:14px; border-radius:50%; flex-shrink:0;
+  border:1.5px solid currentColor;
+  box-shadow:0 0 8px currentColor, inset 0 0 4px currentColor;
 }
+.fi-label { flex:1; font-family:var(--font-body); font-size:0.7rem; }
+.fi-count { font-family:var(--font-mono); font-size:0.62rem; color:var(--text-mute); }
 
-.telemetry { font-size:0.65rem; color:var(--text-mute); letter-spacing:0.15em; }
-.telemetry-row { display:flex; justify-content:space-between; padding:0.18rem 0; }
-.telemetry-row .key { color:var(--text-mute); }
-.telemetry-row .val { color:var(--gold); font-weight:500; }
+.telemetry { font-size:0.63rem; color:var(--text-mute); letter-spacing:0.12em; }
+.telemetry-row { display:flex; justify-content:space-between; padding:0.15rem 0; }
+.telemetry-row .tkey { color:var(--text-mute); }
+.telemetry-row .tval { color:var(--cyan); font-weight:600; font-family:var(--font-mono); }
 
 /* Bottom-right controls */
-.hud-br {
-  bottom:1.5rem; right:1.5rem;
-  display:flex; flex-direction:column; gap:0.4rem; align-items:flex-end;
-}
+.hud-br { bottom:1.5rem; right:1.5rem; display:flex; flex-direction:column; gap:0.35rem; align-items:flex-end; }
 .ctrl {
-  background:var(--panel);
-  backdrop-filter:blur(20px);
-  border:1px solid var(--border);
-  color:var(--text-dim); cursor:pointer; transition:all 0.18s;
-  font-family:var(--font-mono); font-size:0.7rem;
-  letter-spacing:0.1em; text-transform:uppercase;
-  padding:0.55rem 0.85rem;
-  display:flex; align-items:center; gap:0.5rem;
+  background:var(--panel); backdrop-filter:blur(20px);
+  border:1px solid var(--border); color:var(--text-dim);
+  cursor:pointer; transition:all 0.18s;
+  font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase;
+  padding:0.5rem 0.8rem; display:flex; align-items:center; gap:0.4rem;
   clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
-.ctrl:hover { color:var(--gold); border-color:var(--gold); }
-.ctrl.active { color:var(--gold); border-color:var(--gold); background:rgba(240,201,137,0.06); }
-.ctrl .glyph { font-size:0.85rem; }
+.ctrl:hover { color:var(--cyan); border-color:var(--cyan); box-shadow:0 0 14px rgba(0,255,224,0.15); }
+.ctrl.active { color:var(--cyan); border-color:var(--cyan); background:rgba(0,255,224,0.04); }
+.ctrl-glyph { font-size:0.85rem; }
 
+/* Bottom center tip */
 .tip {
   position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%);
-  font-family:var(--font-mono); font-size:0.62rem;
-  color:var(--text-mute); letter-spacing:0.25em; text-transform:uppercase;
+  font-family:var(--font-mono); font-size:0.6rem;
+  color:var(--text-mute); letter-spacing:0.2em; text-transform:uppercase;
   z-index:19; pointer-events:none;
-  background:rgba(8,8,26,0.6); backdrop-filter:blur(10px);
-  padding:0.45rem 1rem; border:1px solid var(--border);
+  background:rgba(10,7,22,0.7); backdrop-filter:blur(10px);
+  padding:0.4rem 0.9rem; border:1px solid var(--border);
   clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
 }
-.tip .key {
-  background:rgba(240,201,137,0.1);
-  padding:0.05rem 0.3rem; border-radius:2px;
-  color:var(--gold); margin:0 0.15rem;
-}
+.tip .k { background:rgba(0,255,224,0.08); padding:0.05rem 0.25rem; border-radius:2px; color:var(--cyan); margin:0 0.1rem; }
 
-/* ───────────── NODE TOOLTIP ───────────── */
+/* ───────────── TOOLTIP ───────────── */
 .tooltip {
   position:fixed; z-index:50;
-  background:var(--panel-solid);
-  border:1px solid var(--border-bright);
-  padding:0.55rem 0.8rem;
-  font-family:var(--font-mono);
-  font-size:0.72rem;
-  color:var(--text); pointer-events:none;
-  opacity:0; transition:opacity 0.15s;
-  max-width:280px;
+  background:var(--panel-solid); border:1px solid var(--border-hi);
+  padding:0.5rem 0.75rem; font-family:var(--font-mono); font-size:0.7rem;
+  color:var(--text); pointer-events:none; opacity:0; transition:opacity 0.12s;
+  max-width:260px;
   clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  box-shadow: 0 0 20px rgba(0,255,224,0.1);
 }
 .tooltip.show { opacity:1; }
-.tt-type {
-  font-size:0.55rem; letter-spacing:0.3em;
-  text-transform:uppercase; color:var(--gold);
-  margin-bottom:0.2rem;
-}
-.tt-name {
-  font-family:var(--font-display); font-size:0.95rem;
-  color:var(--text); margin-bottom:0.15rem;
-  font-style:italic;
-}
-.tt-meta { font-size:0.65rem; color:var(--text-mute); letter-spacing:0.05em; }
+.tt-type { font-size:0.52rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--cyan); margin-bottom:0.18rem; }
+.tt-name { font-family:var(--font-display); font-size:0.82rem; color:var(--glitch-white); margin-bottom:0.12rem; letter-spacing:0.05em; }
+.tt-meta { font-size:0.62rem; color:var(--text-dim); }
 
 /* ───────────── DETAIL PANEL ───────────── */
 .detail {
-  position:fixed; top:0; right:-580px; bottom:0; width:580px; max-width:100vw;
-  background:var(--panel-solid);
-  border-left:1px solid var(--border);
+  position:fixed; top:0; right:-600px; bottom:0; width:580px; max-width:100vw;
+  background:var(--panel-solid); border-left:1px solid var(--border);
   z-index:80; overflow-y:auto;
-  transition:right 0.5s cubic-bezier(0.2, 0.95, 0.35, 1);
-  box-shadow:-20px 0 60px rgba(0,0,0,0.6);
+  transition:right 0.45s cubic-bezier(0.2, 0.95, 0.35, 1);
+  box-shadow:-30px 0 80px rgba(0,0,0,0.7);
 }
 .detail.open { right:0; }
-.detail::-webkit-scrollbar { width:6px; }
+.detail::-webkit-scrollbar { width:5px; }
 .detail::-webkit-scrollbar-thumb { background:var(--border); }
 
 .detail-head {
   padding:1.75rem 2rem 1.25rem;
-  border-bottom:1px solid var(--border);
-  position:relative;
-  background: linear-gradient(180deg, rgba(240,201,137,0.05), transparent);
+  border-bottom:1px solid var(--border); position:relative;
+  background: linear-gradient(180deg, rgba(0,255,224,0.04), transparent);
 }
 .d-close {
   position:absolute; top:1rem; right:1rem;
-  width:34px; height:34px;
-  background:transparent; border:1px solid var(--border);
-  color:var(--text-dim); cursor:pointer;
-  font-family:var(--font-mono); font-size:0.9rem;
-  display:flex; align-items:center; justify-content:center;
-  transition:all 0.18s;
+  width:32px; height:32px; background:transparent; border:1px solid var(--border);
+  color:var(--text-dim); cursor:pointer; font-size:0.85rem;
+  display:flex; align-items:center; justify-content:center; transition:all 0.18s;
   clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
 }
-.d-close:hover { color:var(--gold); border-color:var(--gold); }
+.d-close:hover { color:var(--cyan); border-color:var(--cyan); box-shadow:0 0 12px rgba(0,255,224,0.2); }
 .d-type {
-  font-family:var(--font-mono); font-size:0.62rem;
-  letter-spacing:0.35em; text-transform:uppercase;
-  color:var(--gold); margin-bottom:0.6rem;
-  display:flex; align-items:center; gap:0.5rem;
+  font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.4em;
+  text-transform:uppercase; color:var(--cyan); margin-bottom:0.55rem;
+  display:flex; align-items:center; gap:0.45rem;
 }
-.d-type::before {
-  content:''; width:18px; height:1px; background:var(--gold);
-}
+.d-type::before { content:''; width:16px; height:1px; background:var(--cyan); box-shadow:0 0 8px var(--cyan); }
 .d-title {
-  font-family:var(--font-display);
-  font-size:2rem; font-weight:500; line-height:1.1;
-  letter-spacing:-0.01em; margin-bottom:0.4rem;
+  font-family:var(--font-display); font-size:1.7rem; font-weight:700;
+  line-height:1.1; letter-spacing:0.05em; margin-bottom:0.35rem; color:var(--glitch-white);
 }
-.d-subtitle {
-  font-family:var(--font-display); font-style:italic;
-  font-size:0.95rem; color:var(--text-dim); margin-bottom:0.4rem;
-}
-.d-coords {
-  font-family:var(--font-mono); font-size:0.68rem;
-  color:var(--text-mute); letter-spacing:0.1em;
-}
-.d-tags { display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.9rem; }
+.d-subtitle { font-family:var(--font-body); font-size:0.9rem; color:var(--text-dim); margin-bottom:0.35rem; font-style:italic; }
+.d-coords { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-mute); letter-spacing:0.1em; }
+.d-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.8rem; }
 .dtag {
-  display:inline-flex; align-items:center; gap:0.3rem;
-  padding:0.22rem 0.6rem;
-  border:1px solid var(--border);
-  font-family:var(--font-mono); font-size:0.66rem;
-  letter-spacing:0.05em;
-  color:var(--text-dim); cursor:pointer;
-  transition:all 0.15s;
+  display:inline-flex; align-items:center; gap:0.25rem;
+  padding:0.2rem 0.55rem; border:1px solid var(--border);
+  font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.05em;
+  color:var(--text-dim); cursor:pointer; transition:all 0.15s;
   clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
 }
-.dtag:hover { color:var(--gold); border-color:var(--gold); }
-.dtag.tradition { color:#d8736a; border-color:rgba(216,115,106,0.3); }
-.dtag.tradition:hover { color:#e89089; border-color:#d8736a; }
-.dtag.theme { color:#6aa0e0; border-color:rgba(106,160,224,0.3); }
-.dtag.theme:hover { color:#8ab8eb; border-color:#6aa0e0; }
+.dtag:hover { color:var(--cyan); border-color:var(--cyan); }
+.dtag.tradition { color:var(--violet); border-color:rgba(157,0,255,0.3); }
+.dtag.tradition:hover { border-color:var(--violet); }
+.dtag.theme { color:var(--acid); border-color:rgba(170,255,0,0.25); }
+.dtag.theme:hover { border-color:var(--acid); }
 
-.detail-body { padding:1.5rem 2rem 3rem; }
-.section { margin-bottom:1.6rem; }
-.section:last-child { margin-bottom:0; }
+.detail-body { padding:1.4rem 2rem 3rem; }
+.section { margin-bottom:1.5rem; }
 .section-label {
-  font-family:var(--font-mono);
-  font-size:0.6rem; font-weight:500;
-  letter-spacing:0.3em; text-transform:uppercase;
-  color:var(--gold-deep); margin-bottom:0.65rem;
-  display:flex; align-items:center; gap:0.5rem;
+  font-family:var(--font-mono); font-size:0.58rem; font-weight:600;
+  letter-spacing:0.35em; text-transform:uppercase; color:var(--cyan-dim);
+  margin-bottom:0.6rem; display:flex; align-items:center; gap:0.45rem;
 }
-.section-label::before {
-  content:''; width:14px; height:1px; background:var(--gold-deep);
-}
-.section-label .num {
-  font-family:var(--font-mono); color:var(--text-mute);
-  margin-left:auto; font-weight:400;
-}
+.section-label::before { content:''; width:12px; height:1px; background:var(--cyan-dim); }
+.section-label .num { font-family:var(--font-mono); color:var(--text-mute); margin-left:auto; font-weight:400; }
+.bio { font-family:var(--font-body); font-size:0.95rem; line-height:1.6; color:var(--text-dim); }
 
-.bio {
-  font-family:var(--font-display);
-  font-size:1.05rem; line-height:1.55;
-  color:var(--text-dim); font-style:italic;
-}
-
-/* QUOTE CARDS */
+/* Quote cards */
 .qcard {
-  position:relative;
-  background:rgba(240,201,137,0.025);
-  border:1px solid var(--border);
-  padding:1.2rem 1.3rem 1rem;
-  margin-bottom:0.8rem;
-  transition:all 0.25s;
+  position:relative; background:rgba(0,255,224,0.02);
+  border:1px solid var(--border); padding:1.1rem 1.2rem 0.9rem;
+  margin-bottom:0.7rem; transition:all 0.2s;
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
 .qcard::before {
   content:''; position:absolute; left:0; top:10px; bottom:10px; width:2px;
-  background:var(--gold-deep); transition:background 0.2s;
+  background:var(--magenta-dim); transition:background 0.2s;
+  box-shadow:0 0 6px var(--magenta-dim);
 }
-.qcard:hover::before { background:var(--gold); }
-.qcard:hover { background:rgba(240,201,137,0.04); border-color:var(--border-bright); }
+.qcard:hover::before { background:var(--magenta); box-shadow:0 0 10px var(--magenta); }
+.qcard:hover { border-color:rgba(0,255,224,0.3); background:rgba(0,255,224,0.035); }
 .qtext {
-  font-family:var(--font-display);
-  font-size:1.08rem; line-height:1.5;
-  font-style:italic; margin-bottom:0.85rem;
-  color:var(--text);
+  font-family:var(--font-body); font-size:0.95rem; line-height:1.55;
+  font-style:italic; margin-bottom:0.7rem; color:var(--text);
 }
-.qtext::before, .qtext::after {
-  font-family:var(--font-display); color:var(--gold);
-  font-size:1.5em; line-height:0; vertical-align:-0.25em;
-}
-.qtext::before { content:'“'; margin-right:0.05em; }
-.qtext::after { content:'”'; margin-left:0.05em; }
-
-.qctx {
-  font-family:var(--font-mono); font-size:0.7rem;
-  color:var(--text-mute); margin-bottom:0.7rem;
-  letter-spacing:0.03em;
-}
-.qctx .speaker {
-  color:var(--gold); text-transform:uppercase;
-  letter-spacing:0.2em; font-size:0.62rem;
-  margin-right:0.4em;
-}
-.qthemes { display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.85rem; }
-
-.qcite {
-  margin-top:0.6rem; border-top:1px dashed var(--border); padding-top:0.7rem;
-}
+.qtext::before { content:'"'; color:var(--magenta); font-size:1.3em; line-height:0; vertical-align:-0.2em; margin-right:0.05em; }
+.qtext::after  { content:'"'; color:var(--magenta); font-size:1.3em; line-height:0; vertical-align:-0.2em; margin-left:0.05em; }
+.qctx { font-family:var(--font-mono); font-size:0.67rem; color:var(--text-mute); margin-bottom:0.6rem; }
+.qctx .speaker { color:var(--orange); text-transform:uppercase; letter-spacing:0.2em; font-size:0.6rem; margin-right:0.4em; }
+.qthemes { display:flex; flex-wrap:wrap; gap:0.25rem; margin-bottom:0.7rem; }
+.qcite { margin-top:0.5rem; border-top:1px dashed rgba(0,255,224,0.1); padding-top:0.6rem; }
 .cite-toggle {
   background:none; border:none; padding:0; cursor:pointer;
-  color:var(--gold-deep); font-family:var(--font-mono);
-  font-size:0.62rem; letter-spacing:0.25em; text-transform:uppercase;
-  font-weight:500;
-  display:flex; align-items:center; gap:0.5rem;
+  color:var(--cyan-dim); font-family:var(--font-mono); font-size:0.6rem;
+  letter-spacing:0.25em; text-transform:uppercase;
+  display:flex; align-items:center; gap:0.45rem;
 }
-.cite-toggle:hover { color:var(--gold); }
-.cite-toggle .chev { transition:transform 0.2s; display:inline-block; }
+.cite-toggle:hover { color:var(--cyan); }
+.cite-toggle .chev { transition:transform 0.2s; }
 .cite-toggle.open .chev { transform:rotate(90deg); }
-
 .prov {
-  display:inline-block; padding:0.1rem 0.5rem;
-  font-family:var(--font-mono); font-size:0.6rem;
-  letter-spacing:0.15em; text-transform:uppercase;
+  display:inline-block; padding:0.08rem 0.45rem;
+  font-family:var(--font-mono); font-size:0.58rem; letter-spacing:0.15em; text-transform:uppercase;
   margin-left:auto;
   clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
 }
-.prov.primary { background:rgba(124,204,140,0.1); color:var(--good); border:1px solid rgba(124,204,140,0.3); }
-.prov.secondary { background:rgba(240,201,137,0.1); color:var(--gold); border:1px solid rgba(240,201,137,0.3); }
-.prov.tertiary { background:rgba(216,115,106,0.1); color:var(--crimson); border:1px solid rgba(216,115,106,0.3); }
-
-.cite-content {
-  display:none; margin-top:0.7rem;
-}
-.cite-content.open { display:block; animation: slideDown 0.25s ease; }
-@keyframes slideDown { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
-
+.prov.primary   { background:rgba(170,255,0,0.08); color:var(--acid); border:1px solid rgba(170,255,0,0.25); }
+.prov.secondary { background:rgba(0,255,224,0.08); color:var(--cyan); border:1px solid rgba(0,255,224,0.25); }
+.prov.tertiary  { background:rgba(255,45,120,0.08); color:var(--magenta); border:1px solid rgba(255,45,120,0.2); }
+.cite-content { display:none; margin-top:0.6rem; }
+.cite-content.open { display:block; animation:slideDown 0.2s ease; }
+@keyframes slideDown { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
 .cite-block {
-  background:rgba(0,0,0,0.35);
-  padding:0.65rem 0.85rem; margin-bottom:0.5rem;
-  border-left:2px solid var(--gold-deep);
-  font-family:var(--font-mono); font-size:0.72rem;
-  line-height:1.6; color:var(--text-dim);
+  background:rgba(0,0,0,0.4); padding:0.6rem 0.8rem; margin-bottom:0.4rem;
+  border-left:2px solid var(--cyan-dim);
+  font-family:var(--font-mono); font-size:0.7rem; line-height:1.6; color:var(--text-dim);
 }
-.cite-block:last-child { margin-bottom:0; }
-.cite-block-label {
-  font-size:0.58rem; font-weight:600;
-  letter-spacing:0.25em; text-transform:uppercase;
-  color:var(--gold-deep); margin-bottom:0.3rem;
-  display:block;
-}
+.cite-block-label { font-size:0.56rem; font-weight:600; letter-spacing:0.25em; text-transform:uppercase; color:var(--cyan-dim); margin-bottom:0.25rem; display:block; }
 .cite-block em { color:var(--text); font-style:italic; }
-.cite-note {
-  margin-top:0.5rem; padding:0.5rem 0.7rem;
-  background:rgba(240,201,137,0.05);
-  border-left:2px solid var(--gold);
-  font-size:0.68rem; color:var(--text-dim);
-  font-style:italic; line-height:1.45;
-}
-
-.variants {
-  margin-top:0.7rem; padding-top:0.7rem;
-  border-top:1px dashed var(--border);
-}
-.variant {
-  font-family:var(--font-display); font-style:italic;
-  font-size:0.92rem; color:var(--text-dim);
-  padding:0.4rem 0 0.4rem 0.85rem;
-  border-left:2px solid var(--border);
-  margin-bottom:0.4rem;
-}
-.variant-src {
-  display:block; font-family:var(--font-mono); font-style:normal;
-  font-size:0.65rem; color:var(--text-mute); margin-top:0.2rem;
-  letter-spacing:0.03em;
-}
+.cite-note { margin-top:0.45rem; padding:0.45rem 0.65rem; background:rgba(0,255,224,0.04); border-left:2px solid var(--cyan); font-size:0.66rem; color:var(--text-dim); font-style:italic; line-height:1.45; }
 
 /* Connection list */
-.conn-list { display:flex; flex-direction:column; gap:0.3rem; }
+.conn-list { display:flex; flex-direction:column; gap:0.25rem; }
 .conn {
-  display:flex; align-items:center; gap:0.7rem;
-  padding:0.55rem 0.8rem;
-  background:rgba(255,255,255,0.015);
-  border:1px solid var(--border);
-  cursor:pointer; transition:all 0.18s;
+  display:flex; align-items:center; gap:0.65rem;
+  padding:0.5rem 0.75rem; background:rgba(255,255,255,0.01);
+  border:1px solid var(--border); cursor:pointer; transition:all 0.15s;
   clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
 }
-.conn:hover { border-color:var(--gold); background:rgba(240,201,137,0.04); transform:translateX(-2px); }
-.conn-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; box-shadow:0 0 6px currentColor; }
-.conn-label { flex:1; font-family:var(--font-body); font-size:0.85rem; color:var(--text); }
-.conn-rel {
-  font-family:var(--font-mono); font-size:0.62rem;
-  color:var(--text-mute); letter-spacing:0.1em;
-  text-transform:uppercase;
-}
+.conn:hover { border-color:var(--cyan); background:rgba(0,255,224,0.04); transform:translateX(-2px); }
+.conn-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; box-shadow:0 0 6px currentColor; }
+.conn-label { flex:1; font-family:var(--font-body); font-size:0.82rem; color:var(--text); }
+.conn-rel { font-family:var(--font-mono); font-size:0.6rem; color:var(--text-mute); letter-spacing:0.1em; text-transform:uppercase; }
 
 /* ───────────── RESPONSIVE ───────────── */
 @media (max-width:768px) {
-  .hud-tl, .hud-tr, .hud-bl, .hud-br { left:0.75rem; right:0.75rem; }
+  .hud-tl, .hud-tr, .hud-bl { left:0.75rem; right:0.75rem; }
   .hud-tr { top:5rem; }
   .search-shell, .search-results { width:100%; }
   .search-shell:focus-within { width:100%; }
@@ -607,93 +496,88 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
 </head>
 <body>
 
-<!-- BOOT SEQUENCE -->
+<!-- BOOT -->
 <div class="boot" id="boot">
-  <div class="boot-glyph">
-    <div class="boot-glyph-core">Q</div>
+  <div class="boot-sphere-wrap">
+    <div class="boot-sphere-ring"></div>
+    <div class="boot-sphere-ring"></div>
+    <div class="boot-sphere-ring"></div>
+    <div class="boot-sphere-core">QN</div>
   </div>
-  <div class="boot-name">Quotidian <span class="accent">Nexus</span></div>
-  <div class="boot-tag">Transdisciplinary Archive · v0.3.1</div>
+  <div class="boot-title">QUOTIDIAN NEXUS</div>
+  <div class="boot-tag">Transdisciplinary Glitch Archive · v0.3.0</div>
   <div class="boot-log" id="bootLog"></div>
   <div class="boot-progress"><div class="boot-progress-bar" id="bootBar"></div></div>
   <div class="boot-meta">
     <span id="bootStatus">INITIALIZING</span>
     <span id="bootPct">0%</span>
   </div>
-  <button class="boot-enter" id="bootEnter">Enter</button>
+  <button class="boot-enter" id="bootEnter">// ENTER NEXUS</button>
 </div>
 
-<!-- ATMOSPHERIC LAYERS -->
-<div class="atmosphere"></div>
-
-<!-- 3D GRAPH -->
-<div id="graph"></div>
+<!-- CANVAS -->
+<div id="canvas-wrap"></div>
 
 <!-- HUD: Brand -->
 <div class="hud hud-tl">
-  <div class="brand-mark">Quotidian <span class="accent">Nexus</span></div>
+  <div class="brand-mark">QUOTIDIAN NEXUS</div>
   <div class="brand-sub">▸ Transdisciplinary Archive</div>
+  <div class="brand-ver">v0.3.0 · GLITCHWAVE</div>
 </div>
 
 <!-- HUD: Search -->
 <div class="hud hud-tr">
   <div class="search-shell">
-    <span class="icon">⌕</span>
+    <span class="search-icon">⌕</span>
     <input class="search-input" id="search" placeholder="Query the nexus...">
     <span class="search-key">/</span>
   </div>
   <div class="search-results" id="searchResults"></div>
 </div>
 
-<!-- HUD: Reticle -->
+<!-- Reticle -->
 <div class="reticle" id="reticle"></div>
 
 <!-- HUD: Filters + Telemetry -->
 <div class="hud hud-bl">
   <div class="hud-panel">
-    <h5>Node Filter</h5>
+    <h5>Sphere Filter</h5>
     <div class="filter-item" data-type="thinker">
-      <span class="dot" style="background:var(--node-thinker); color:var(--node-thinker)"></span>
-      <span class="label">Thinkers</span>
-      <span class="count" id="ct-thinker">0</span>
+      <span class="fi-sphere" style="color:var(--node-thinker)"></span>
+      <span class="fi-label">Thinker Spheres</span>
+      <span class="fi-count" id="ct-thinker">0</span>
     </div>
     <div class="filter-item" data-type="tradition">
-      <span class="dot" style="background:var(--node-tradition); color:var(--node-tradition)"></span>
-      <span class="label">Traditions</span>
-      <span class="count" id="ct-tradition">0</span>
+      <span class="fi-sphere" style="color:var(--node-tradition)"></span>
+      <span class="fi-label">Traditions</span>
+      <span class="fi-count" id="ct-tradition">0</span>
     </div>
     <div class="filter-item" data-type="theme">
-      <span class="dot" style="background:var(--node-theme); color:var(--node-theme)"></span>
-      <span class="label">Themes</span>
-      <span class="count" id="ct-theme">0</span>
+      <span class="fi-sphere" style="color:var(--node-theme)"></span>
+      <span class="fi-label">Theme Clusters</span>
+      <span class="fi-count" id="ct-theme">0</span>
     </div>
   </div>
   <div class="hud-panel">
     <h5>Telemetry</h5>
     <div class="telemetry">
-      <div class="telemetry-row"><span class="key">QUOTATIONS</span> <span class="val" id="t-quotes">0</span></div>
-      <div class="telemetry-row"><span class="key">EDGES</span> <span class="val" id="t-edges">0</span></div>
-      <div class="telemetry-row"><span class="key">DEPTH</span> <span class="val" id="t-depth">∞</span></div>
+      <div class="telemetry-row"><span class="tkey">QUOTATIONS</span><span class="tval" id="t-quotes">0</span></div>
+      <div class="telemetry-row"><span class="tkey">EDGES</span><span class="tval" id="t-edges">0</span></div>
+      <div class="telemetry-row"><span class="tkey">SPHERES</span><span class="tval" id="t-spheres">0</span></div>
     </div>
   </div>
 </div>
 
 <!-- HUD: Controls -->
 <div class="hud hud-br">
-  <button class="ctrl" id="btn-labels" title="Toggle node labels">
-    <span class="glyph">Aa</span> Labels
-  </button>
-  <button class="ctrl" id="btn-rotate" title="Auto-rotate scene">
-    <span class="glyph">↻</span> Auto-Orbit
-  </button>
-  <button class="ctrl" id="btn-reset" title="Reset view">
-    <span class="glyph">◌</span> Reset
-  </button>
+  <button class="ctrl active" id="btn-labels"><span class="ctrl-glyph">Aa</span> Labels</button>
+  <button class="ctrl" id="btn-rotate"><span class="ctrl-glyph">↻</span> Auto-Orbit</button>
+  <button class="ctrl" id="btn-reset"><span class="ctrl-glyph">◌</span> Reset</button>
 </div>
 
 <!-- Tip -->
 <div class="tip">
-  <span class="key">Drag</span> to orbit · <span class="key">Scroll</span> to zoom · <span class="key">Click</span> a node to focus · <span class="key">Esc</span> to release
+  <span class="k">Drag</span> orbit · <span class="k">Scroll</span> zoom · <span class="k">Click</span> node · <span class="k">Esc</span> release
 </div>
 
 <!-- Tooltip -->
@@ -705,874 +589,1211 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
   <div id="detailContent"></div>
 </div>
 
-<!-- ATMOSPHERIC OVERLAYS (above 3D) -->
-<div class="grain"></div>
-<div class="scanlines"></div>
-<div class="vignette"></div>
+<!-- Atmospheric overlays -->
+<div class="atmo-grain"></div>
+<div class="atmo-scanlines"></div>
+<div class="atmo-vignette"></div>
 
 <script src="data/nexus.js"></script>
-<script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
 (function() {
-  'use strict';
-  const D = window.nexusData;
+'use strict';
+const D = window.nexusData;
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // BOOT SEQUENCE
-  // ─────────────────────────────────────────────────────────────────────────
-  const bootLines = [
-    { text: '> Initializing Three.js render pipeline', cls:'ok', delay:200 },
-    { text: '> Loading citation index', cls:'ok', delay:380 },
-    { text: '> Parsing thinkers·traditions·themes', cls:'ok', delay:560 },
-    { text: '> Resolving primary↔secondary provenance', cls:'ok', delay:780 },
-    { text: '> Computing force-directed layout', cls:'warn', delay:960 },
-    { text: '> Calibrating atmospheric depth', cls:'ok', delay:1180 },
-    { text: '> Nexus online', cls:'ok', delay:1400 }
-  ];
-  const bootLog = document.getElementById('bootLog');
-  const bootBar = document.getElementById('bootBar');
-  const bootPct = document.getElementById('bootPct');
-  const bootStatus = document.getElementById('bootStatus');
-  const bootEnter = document.getElementById('bootEnter');
+// ─────────────────────────────────────────────────────────────────────────
+// GLITCHWAVE COLOR PALETTE
+// ─────────────────────────────────────────────────────────────────────────
+const PALETTE = {
+  thinker:   { hex: '#FF6B1A', int: 0xFF6B1A, label: 'Thinker'   },
+  tradition: { hex: '#9D00FF', int: 0x9D00FF, label: 'Tradition' },
+  theme:     { hex: '#00FFE0', int: 0x00FFE0, label: 'Theme'      },
+};
+const CROSS_COLOR    = 0xFF2D78;  // magenta — inter-cluster connectors
+const INTRA_COLOR    = 0x00FFE0;  // cyan — intra-sphere node wires
+const PARTICLE_COLOR = 0x00FFE0;  // ambient field
 
-  bootLines.forEach((line, i) => {
-    setTimeout(() => {
-      const el = document.createElement('div');
-      el.className = 'boot-log-line ' + (line.cls || '');
-      el.textContent = line.text;
-      el.style.animationDelay = '0s';
-      bootLog.appendChild(el);
-      while (bootLog.children.length > 6) bootLog.removeChild(bootLog.firstChild);
-      const pct = Math.round(((i+1)/bootLines.length)*100);
-      bootBar.style.width = pct + '%';
-      bootPct.textContent = pct + '%';
-      if (i === bootLines.length - 1) {
-        bootStatus.textContent = 'READY';
-        bootEnter.classList.add('ready');
-      }
-    }, line.delay);
-  });
+// ─────────────────────────────────────────────────────────────────────────
+// BOOT SEQUENCE
+// ─────────────────────────────────────────────────────────────────────────
+const bootLines = [
+  { text: '> Bootstrapping WebGL renderer', cls:'ok', delay:180 },
+  { text: '> Loading nexus.js citation index', cls:'ok', delay:340 },
+  { text: '> Classifying thinkers · traditions · themes', cls:'ok', delay:520 },
+  { text: '> Constructing geodesic sphere clusters', cls:'warn', delay:700 },
+  { text: '> Weaving inter-sphere string topology', cls:'warn', delay:900 },
+  { text: '> Calibrating glitchwave spectral palette', cls:'ok', delay:1100 },
+  { text: '> Nexus online — signal acquired', cls:'ok', delay:1320 },
+];
+const bootLog = document.getElementById('bootLog');
+const bootBar = document.getElementById('bootBar');
+const bootPct = document.getElementById('bootPct');
+const bootStatus = document.getElementById('bootStatus');
+const bootEnter = document.getElementById('bootEnter');
 
-  bootEnter.addEventListener('click', () => {
-    if (!bootEnter.classList.contains('ready')) return;
-    document.getElementById('boot').classList.add('hidden');
-    // Let force-graph auto-fit to the settled layout
-    setTimeout(() => { try { Graph.zoomToFit(1600, 80); } catch(e){} }, 800);
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // BUILD GRAPH DATA
-  // ─────────────────────────────────────────────────────────────────────────
-  const nodes = [];
-  const links = [];
-  const nodeById = {};
-
-  const NODE_COLORS = {
-    thinker: 0xf0c989,
-    tradition: 0xd8736a,
-    theme: 0x6aa0e0
-  };
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // WEIGHT COMPUTATION — drives node sizing
-  // ─────────────────────────────────────────────────────────────────────────
-  function computeWeight(node) {
-    if (node.type === 'thinker') {
-      const quotesBy = D.quotes.filter(q => q.thinker === node.id).length;
-      const quotesAbout = D.quotes.filter(q => q.aboutThinker === node.id).length;
-      const connections = D.relationships.filter(r =>
-        r.source === node.id || r.target === node.id
-      ).length;
-      const tradCount = (node.data.traditions || []).length;
-      return Math.max(1, quotesBy * 3 + quotesAbout * 2 + connections * 1.2 + tradCount * 0.5);
+bootLines.forEach((line, i) => {
+  setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'boot-log-line ' + (line.cls || '');
+    el.textContent = line.text;
+    bootLog.appendChild(el);
+    while (bootLog.children.length > 6) bootLog.removeChild(bootLog.firstChild);
+    const pct = Math.round(((i+1)/bootLines.length)*100);
+    bootBar.style.width = pct + '%';
+    bootPct.textContent = pct + '%';
+    if (i === bootLines.length - 1) {
+      bootStatus.textContent = 'READY';
+      bootEnter.classList.add('ready');
     }
-    if (node.type === 'tradition') {
-      const members = D.thinkers.filter(t => (t.traditions || []).includes(node.id));
-      const totalQuotes = members.reduce((sum, m) =>
-        sum + D.quotes.filter(q => q.thinker === m.id).length, 0);
-      return Math.max(1, members.length * 5 + totalQuotes * 1.5);
-    }
-    if (node.type === 'theme') {
-      const quoteCount = D.quotes.filter(q => (q.themes || []).includes(node.id)).length;
-      const thinkerSet = new Set(D.quotes.filter(q => (q.themes || []).includes(node.id)).map(q => q.thinker));
-      return Math.max(1, quoteCount * 2 + thinkerSet.size * 1.5);
-    }
-    return 1;
-  }
+  }, line.delay);
+});
 
-  D.thinkers.forEach(t => {
-    const n = { id:t.id, type:'thinker', name:t.name, data:t, color:NODE_COLORS.thinker };
-    n.weight = computeWeight(n);
-    nodes.push(n); nodeById[t.id] = n;
-  });
-  D.traditions.forEach(t => {
-    if (!D.thinkers.some(thk => (thk.traditions||[]).includes(t.id))) return;
-    const n = { id:t.id, type:'tradition', name:t.name, data:t, color:NODE_COLORS.tradition };
-    n.weight = computeWeight(n);
-    nodes.push(n); nodeById[t.id] = n;
-  });
-  D.themes.forEach(t => {
-    if (!D.quotes.some(q => (q.themes||[]).includes(t.id))) return;
-    const n = { id:t.id, type:'theme', name:t.name, data:t, color:NODE_COLORS.theme };
-    n.weight = computeWeight(n);
-    nodes.push(n); nodeById[t.id] = n;
-  });
+bootEnter.addEventListener('click', () => {
+  if (!bootEnter.classList.contains('ready')) return;
+  document.getElementById('boot').classList.add('hidden');
+  setTimeout(() => { controls.autoRotate = false; }, 200);
+});
 
-  // Log-scale weight → visual size with per-type ranges
-  const typeRanges = {
-    thinker:   { min: 4, max: 14 },
-    tradition: { min: 8, max: 26 },
-    theme:     { min: 3, max: 9 }
-  };
-  ['thinker','tradition','theme'].forEach(type => {
-    const ofType = nodes.filter(n => n.type === type);
-    if (!ofType.length) return;
-    const ws = ofType.map(n => n.weight);
-    const lMin = Math.log(Math.min(...ws) + 1);
-    const lMax = Math.log(Math.max(...ws) + 1);
-    const range = typeRanges[type];
-    ofType.forEach(n => {
-      const norm = lMax === lMin ? 0.5 : (Math.log(n.weight + 1) - lMin) / (lMax - lMin);
-      n.normalizedWeight = norm;
-      n.val = range.min + norm * (range.max - range.min);
-    });
-  });
+// ─────────────────────────────────────────────────────────────────────────
+// PROCESS DATA — build node + link structures
+// ─────────────────────────────────────────────────────────────────────────
+const nodeById = {};
+const nodes = [];
+const links = [];
 
-  D.thinkers.forEach(t => {
-    (t.traditions||[]).forEach(tr => {
-      if (nodeById[tr]) links.push({ source:t.id, target:tr, kind:'belongs-to' });
-    });
+D.thinkers.forEach(t => {
+  const n = { id:t.id, type:'thinker', name:t.name, data:t };
+  nodes.push(n); nodeById[t.id] = n;
+});
+D.traditions.forEach(t => {
+  if (!D.thinkers.some(th => (th.traditions||[]).includes(t.id))) return;
+  const n = { id:t.id, type:'tradition', name:t.name, data:t };
+  nodes.push(n); nodeById[t.id] = n;
+});
+D.themes.forEach(t => {
+  if (!D.quotes.some(q => (q.themes||[]).includes(t.id))) return;
+  const n = { id:t.id, type:'theme', name:t.name, data:t };
+  nodes.push(n); nodeById[t.id] = n;
+});
+
+D.thinkers.forEach(t => {
+  (t.traditions||[]).forEach(tr => {
+    if (nodeById[tr]) links.push({ source:t.id, target:tr, kind:'belongs-to' });
   });
-  const seenThemes = {};
-  D.quotes.forEach(q => {
-    (q.themes||[]).forEach(theme => {
-      const k = q.thinker + '::' + theme;
-      if (!seenThemes[k] && nodeById[theme] && nodeById[q.thinker]) {
-        seenThemes[k] = true;
-        links.push({ source:q.thinker, target:theme, kind:'wrote-about' });
-      }
-    });
-  });
-  D.relationships.forEach(r => {
-    if (nodeById[r.source] && nodeById[r.target]) {
-      links.push({ source:r.source, target:r.target, kind:r.type });
+});
+const seenThemes = {};
+D.quotes.forEach(q => {
+  (q.themes||[]).forEach(theme => {
+    const k = q.thinker + '::' + theme;
+    if (!seenThemes[k] && nodeById[theme] && nodeById[q.thinker]) {
+      seenThemes[k] = true;
+      links.push({ source:q.thinker, target:theme, kind:'wrote-about' });
     }
   });
-
-  // Counts
-  const counts = { thinker:0, tradition:0, theme:0 };
-  nodes.forEach(n => counts[n.type]++);
-  document.getElementById('ct-thinker').textContent = String(counts.thinker).padStart(3,'0');
-  document.getElementById('ct-tradition').textContent = String(counts.tradition).padStart(3,'0');
-  document.getElementById('ct-theme').textContent = String(counts.theme).padStart(3,'0');
-  document.getElementById('t-quotes').textContent = String(D.quotes.length).padStart(3,'0');
-  document.getElementById('t-edges').textContent = String(links.length).padStart(3,'0');
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // STATE
-  // ─────────────────────────────────────────────────────────────────────────
-  let selectedNodeId = null;
-  let showLabels = true;
-  let autoRotate = false;
-  const filters = { thinker:true, tradition:true, theme:true };
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // 3D GRAPH SETUP
-  // ─────────────────────────────────────────────────────────────────────────
-  const THREE = window.THREE;
-  const THREE_OK = !!(THREE && THREE.SphereGeometry && THREE.Sprite);
-  if (!THREE_OK) {
-    console.warn('[Nexus] window.THREE not available — falling back to default node rendering');
+});
+D.relationships.forEach(r => {
+  if (nodeById[r.source] && nodeById[r.target]) {
+    links.push({ source:r.source, target:r.target, kind:r.type });
   }
-  const elem = document.getElementById('graph');
-  const Graph = ForceGraph3D({ controlType:'orbit' })(elem)
-    .backgroundColor('#050510')
-    .graphData({ nodes, links })
-    .nodeId('id')
-    .nodeVal('val')
-    .linkOpacity(0.25)
-    .linkWidth(0)
-    .linkResolution(4)
-    .nodeRelSize(4)
-    .nodeOpacity(1)
-    .showNavInfo(false)
-    .nodeThreeObject(node => THREE_OK ? makeNodeObject(node) : null)
-    .nodeThreeObjectExtend(true)
-    .nodeColor(n => n.color === 0xf0c989 ? '#f0c989' : n.color === 0xd8736a ? '#d8736a' : '#6aa0e0')
-    .linkColor(l => {
-      if (selectedNodeId) {
-        const sid = l.source.id || l.source;
-        const tid = l.target.id || l.target;
-        if (sid === selectedNodeId || tid === selectedNodeId) return 'rgba(240,201,137,0.65)';
-        return 'rgba(255,255,255,0.04)';
-      }
-      return 'rgba(240,201,137,0.18)';
-    })
-    .linkDirectionalParticles(l => {
-      if (!selectedNodeId) return 0;
-      const sid = l.source.id || l.source;
-      const tid = l.target.id || l.target;
-      return (sid === selectedNodeId || tid === selectedNodeId) ? 3 : 0;
-    })
-    .linkDirectionalParticleSpeed(0.006)
-    .linkDirectionalParticleWidth(1.4)
-    .linkDirectionalParticleColor(() => 0xf0c989)
-    .onNodeHover(handleNodeHover)
-    .onNodeClick(handleNodeClick)
-    .onBackgroundClick(() => {
-      if (selectedNodeId) handleEscape();
-    });
+});
 
-  // Tune forces — give bigger traditions more breathing room
-  Graph.d3Force('charge').strength(n => {
-    if (n.type === 'tradition') return -480 - n.normalizedWeight * 400;
-    return -260;
+// Telemetry counts
+const counts = { thinker:0, tradition:0, theme:0 };
+nodes.forEach(n => counts[n.type]++);
+document.getElementById('ct-thinker').textContent = String(counts.thinker).padStart(3,'0');
+document.getElementById('ct-tradition').textContent = String(counts.tradition).padStart(3,'0');
+document.getElementById('ct-theme').textContent = String(counts.theme).padStart(3,'0');
+document.getElementById('t-quotes').textContent = String(D.quotes.length).padStart(3,'0');
+document.getElementById('t-edges').textContent = String(links.length).padStart(3,'0');
+
+// ─────────────────────────────────────────────────────────────────────────
+// CLUSTER GROUPS — each node type forms its own sphere cluster
+// ─────────────────────────────────────────────────────────────────────────
+// Group nodes by type
+const clusters = {
+  thinker:   nodes.filter(n => n.type === 'thinker'),
+  tradition: nodes.filter(n => n.type === 'tradition'),
+  theme:     nodes.filter(n => n.type === 'theme'),
+};
+
+// Sphere center positions — three spheres arranged in a triangle
+const SPHERE_RADIUS = 90;
+const SPHERE_CENTERS = {
+  thinker:   new THREE.Vector3(-180, 30, -60),
+  tradition: new THREE.Vector3(180, 30, -60),
+  theme:     new THREE.Vector3(0, -140, 80),
+};
+
+// Distribute nodes on sphere surface using Fibonacci lattice
+function fibonacciSphere(count, radius) {
+  const pts = [];
+  const phi = Math.PI * (3 - Math.sqrt(5)); // golden angle
+  for (let i = 0; i < count; i++) {
+    const y = 1 - (i / (count - 1)) * 2;
+    const r = Math.sqrt(1 - y * y);
+    const theta = phi * i;
+    pts.push(new THREE.Vector3(
+      Math.cos(theta) * r * radius,
+      y * radius,
+      Math.sin(theta) * r * radius
+    ));
+  }
+  return pts;
+}
+
+// Assign 3D positions to every node
+Object.entries(clusters).forEach(([type, clusterNodes]) => {
+  const center = SPHERE_CENTERS[type];
+  const pts = fibonacciSphere(Math.max(clusterNodes.length, 3), SPHERE_RADIUS);
+  clusterNodes.forEach((n, i) => {
+    const pt = pts[i];
+    n.x = center.x + pt.x;
+    n.y = center.y + pt.y;
+    n.z = center.z + pt.z;
+    n.clusterCenter = center;
+    n.clusterType = type;
   });
-  Graph.d3Force('link').distance(l => {
-    const tgt = typeof l.target === 'object' ? l.target : nodeById[l.target];
-    const src = typeof l.source === 'object' ? l.source : nodeById[l.source];
-    if (l.kind === 'belongs-to') {
-      const tradW = (tgt && tgt.normalizedWeight) || 0.5;
-      return 50 + tradW * 80;
-    }
-    if (l.kind === 'wrote-about') return 55;
-    return 80;
+});
+
+document.getElementById('t-spheres').textContent = '003';
+
+// ─────────────────────────────────────────────────────────────────────────
+// THREE.JS RENDERER
+// ─────────────────────────────────────────────────────────────────────────
+const wrap = document.getElementById('canvas-wrap');
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+wrap.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x06040F);
+scene.fog = new THREE.FogExp2(0x06040F, 0.0018);
+
+const camera = new THREE.PerspectiveCamera(55, wrap.clientWidth/wrap.clientHeight, 0.5, 4000);
+camera.position.set(0, 80, 580);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.07;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.35;
+controls.minDistance = 80;
+controls.maxDistance = 1400;
+
+// Resize
+window.addEventListener('resize', () => {
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+  camera.aspect = wrap.clientWidth / wrap.clientHeight;
+  camera.updateProjectionMatrix();
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// LIGHTS
+// ─────────────────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x0A0516, 4));
+const keyLight = new THREE.PointLight(0x00FFE0, 80, 1200); keyLight.position.set(0, 300, 200); scene.add(keyLight);
+const fillA   = new THREE.PointLight(0xFF2D78, 50, 900); fillA.position.set(-400, -100, -200); scene.add(fillA);
+const fillB   = new THREE.PointLight(0x9D00FF, 40, 900); fillB.position.set(400, 200, -300); scene.add(fillB);
+const fillC   = new THREE.PointLight(0xFF6B1A, 35, 700); fillC.position.set(0, -300, 300); scene.add(fillC);
+
+// ─────────────────────────────────────────────────────────────────────────
+// GEODESIC SPHERE SHELLS — the main visual cluster objects
+// ─────────────────────────────────────────────────────────────────────────
+// Texture: radial glow soft point
+function makeGlowTexture(size = 256) {
+  const cnv = document.createElement('canvas');
+  cnv.width = cnv.height = size;
+  const ctx = cnv.getContext('2d');
+  const g = ctx.createRadialGradient(size/2,size/2,0, size/2,size/2,size/2);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.12,'rgba(255,255,255,0.8)');
+  g.addColorStop(0.4, 'rgba(255,255,255,0.2)');
+  g.addColorStop(1,   'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.fillRect(0,0,size,size);
+  const tex = new THREE.CanvasTexture(cnv); tex.needsUpdate = true; return tex;
+}
+function makeRingTexture(size = 256) {
+  const cnv = document.createElement('canvas');
+  cnv.width = cnv.height = size;
+  const ctx = cnv.getContext('2d');
+  ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(size/2,size/2,size/2-6,0,Math.PI*2); ctx.stroke();
+  const tex = new THREE.CanvasTexture(cnv); tex.needsUpdate = true; return tex;
+}
+const glowTex = makeGlowTexture();
+const ringTex = makeRingTexture();
+
+// Sphere shell meshes (wireframe geodesic)
+const sphereShells = {};
+const SHELL_RADIUS  = SPHERE_RADIUS + 8;
+
+function buildSphereShell(type) {
+  const center = SPHERE_CENTERS[type];
+  const color = PALETTE[type].int;
+  const group = new THREE.Group();
+  group.position.copy(center);
+
+  // Outer wireframe geodesic — icosahedron subdivided = triangulated sphere look
+  const geoWire = new THREE.IcosahedronGeometry(SHELL_RADIUS, 3);
+  const matWire = new THREE.MeshBasicMaterial({
+    color, wireframe: true, transparent: true, opacity: 0.28, depthWrite: false,
+    blending: THREE.AdditiveBlending,
   });
+  const wireframe = new THREE.Mesh(geoWire, matWire);
+  group.add(wireframe);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // ENRICH THE SCENE: fog, ambient particles, soft lighting
-  // ─────────────────────────────────────────────────────────────────────────
-  const scene = Graph.scene();
-  let particleGeo, velocities = [];
-  const PARTICLE_COUNT = 1400;
+  // Inner ghost fill — very faint solid sphere for depth
+  const geoFill = new THREE.SphereGeometry(SHELL_RADIUS - 2, 24, 24);
+  const matFill = new THREE.MeshStandardMaterial({
+    color, transparent: true, opacity: 0.03,
+    emissive: new THREE.Color(color), emissiveIntensity: 0.4,
+    depthWrite: false, side: THREE.FrontSide,
+    metalness: 0.2, roughness: 0.9,
+  });
+  const fill = new THREE.Mesh(geoFill, matFill);
+  group.add(fill);
 
-  if (THREE_OK) {
-    // Fog for depth
-    scene.fog = new THREE.FogExp2(0x050510, 0.0006);
+  // Equatorial glow ring (billboard sprite)
+  const ringMat = new THREE.SpriteMaterial({
+    map: ringTex, color, transparent: true, opacity: 0.35,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const ring = new THREE.Sprite(ringMat);
+  const rs = (SHELL_RADIUS + 20) * 2;
+  ring.scale.set(rs, rs, 1);
+  group.add(ring);
 
-    // Soft ambient + directional accent
-    const ambient = new THREE.AmbientLight(0xffffff, 0.9);
-    scene.add(ambient);
-    const keyLight = new THREE.PointLight(0xf0c989, 1.8, 2000);
-    keyLight.position.set(200, 250, 200);
-    scene.add(keyLight);
-    const fillLight = new THREE.PointLight(0x6aa0e0, 0.6, 2000);
-    fillLight.position.set(-300, -100, -200);
-    scene.add(fillLight);
+  // Halo ambient glow sprite
+  const haloMat = new THREE.SpriteMaterial({
+    map: glowTex, color, transparent: true, opacity: 0.12,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const halo = new THREE.Sprite(haloMat);
+  const hs = (SHELL_RADIUS + 80) * 2;
+  halo.scale.set(hs, hs, 1);
+  group.add(halo);
 
-    // Ambient particle field — dust motes drifting in 3D
-    particleGeo = new THREE.BufferGeometry();
-    const positions = new Float32Array(PARTICLE_COUNT * 3);
-    const sizes = new Float32Array(PARTICLE_COUNT);
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const r = 600 + Math.random() * 700;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      positions[i*3]   = r * Math.sin(phi) * Math.cos(theta);
-      positions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-      positions[i*3+2] = r * Math.cos(phi);
-      sizes[i] = 0.5 + Math.random() * 1.5;
-      velocities.push({
-        x: (Math.random() - 0.5) * 0.05,
-        y: (Math.random() - 0.5) * 0.05,
-        z: (Math.random() - 0.5) * 0.05
-      });
-    }
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    particleGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-    const particleTex = makeParticleTexture();
-    const particleMat = new THREE.PointsMaterial({
-      size: 2.2,
-      map: particleTex,
-      color: 0xf0c989,
-      transparent: true,
-      opacity: 0.4,
-      sizeAttenuation: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    });
-    const particles = new THREE.Points(particleGeo, particleMat);
-    scene.add(particles);
-  }
+  // Store refs for animation
+  wireframe.userData.baseOpacity = 0.28;
+  sphereShells[type] = { group, wireframe, fill, ring, halo, color };
+  scene.add(group);
+}
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // CUSTOM NODE OBJECTS — glowing orbs with halos
-  // ─────────────────────────────────────────────────────────────────────────
-  function makeNodeObject(node) {
-    const group = new THREE.Group();
-    const baseSize = Math.cbrt(node.val) * 2.2;
-    const w = node.normalizedWeight || 0.5;
+['thinker','tradition','theme'].forEach(buildSphereShell);
 
-    // ── TRADITION DOMAIN SPHERE ──
-    // For tradition nodes, render a much larger translucent volumetric sphere
-    // representing the school's "field of influence" — wireframe + soft inner glow.
-    if (node.type === 'tradition') {
-      const domainSize = baseSize * (4.5 + w * 3.5); // bigger for richer traditions
-      // Inner volumetric glow (back-faced sphere)
-      const innerGeo = new THREE.SphereGeometry(domainSize, 32, 32);
-      const innerMat = new THREE.MeshBasicMaterial({
-        color: node.color,
-        transparent: true,
-        opacity: 0.04 + w * 0.04,
-        depthWrite: false,
-        side: THREE.BackSide
-      });
-      const inner = new THREE.Mesh(innerGeo, innerMat);
-      group.add(inner);
-      // Wireframe shell
-      const wireGeo = new THREE.SphereGeometry(domainSize, 14, 14);
-      const wireMat = new THREE.LineBasicMaterial({
-        color: node.color,
-        transparent: true,
-        opacity: 0.12 + w * 0.12,
-      });
-      const wire = new THREE.LineSegments(
-        new THREE.WireframeGeometry(wireGeo),
-        wireMat
-      );
-      group.add(wire);
-      wire.userData.role = 'domain-wire';
-    }
+// ─────────────────────────────────────────────────────────────────────────
+// NODE VERTEX DOTS — glowing orbs ON the sphere surfaces
+// ─────────────────────────────────────────────────────────────────────────
+const nodeMeshes = {};   // id → { group, sphere, halo, node }
+const nodeGroups = new THREE.Group();
+scene.add(nodeGroups);
 
-    // Halo sprite (additive glow)
-    const haloTex = makeHaloTexture();
-    const haloMat = new THREE.SpriteMaterial({
-      map: haloTex,
-      color: node.color,
-      transparent: true,
-      opacity: 0.9,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    });
-    const halo = new THREE.Sprite(haloMat);
-    const haloScale = baseSize * 7;
-    halo.scale.set(haloScale, haloScale, 1);
-    halo.userData.role = 'halo';
-    halo.userData.baseScale = haloScale;
-    group.add(halo);
+function buildNode(node) {
+  const color = PALETTE[node.type].int;
+  const group = new THREE.Group();
+  group.position.set(node.x, node.y, node.z);
 
-    // Outer ring (additive)
-    const ringMat = new THREE.SpriteMaterial({
-      map: makeRingTexture(),
-      color: node.color,
-      transparent: true,
-      opacity: 0.45,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    });
-    const ring = new THREE.Sprite(ringMat);
-    const ringScale = baseSize * 4;
-    ring.scale.set(ringScale, ringScale, 1);
-    ring.userData.role = 'ring';
-    ring.userData.baseScale = ringScale;
-    group.add(ring);
+  // Core sphere
+  const isLarge = node.type === 'tradition';
+  const r = isLarge ? 4.5 : 3;
+  const sGeo = new THREE.SphereGeometry(r, 12, 12);
+  const sMat = new THREE.MeshStandardMaterial({
+    color, emissive: new THREE.Color(color), emissiveIntensity: 3,
+    metalness: 0.2, roughness: 0.3,
+  });
+  const sphere = new THREE.Mesh(sGeo, sMat);
+  group.add(sphere);
 
-    // Core sphere with emissive material
-    const sphereGeo = new THREE.SphereGeometry(baseSize, 24, 24);
-    const sphereMat = new THREE.MeshStandardMaterial({
-      color: node.color,
-      emissive: node.color,
-      emissiveIntensity: 2.5,
-      metalness: 0.4,
-      roughness: 0.3
-    });
-    const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-    sphere.userData.role = 'sphere';
-    group.add(sphere);
+  // Halo glow sprite
+  const hMat = new THREE.SpriteMaterial({
+    map: glowTex, color, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const halo = new THREE.Sprite(hMat);
+  const hs = r * 8;
+  halo.scale.set(hs, hs, 1);
+  halo.userData.baseScale = hs;
+  group.add(halo);
 
-    // Label (sprite-based text) — scales with importance
-    const labelSprite = makeLabelSprite(node.name, node.type, w);
-    labelSprite.position.set(0, baseSize + 8, 0);
-    labelSprite.userData.role = 'label';
-    group.add(labelSprite);
+  // Ring sprite
+  const rMat = new THREE.SpriteMaterial({
+    map: ringTex, color, transparent: true, opacity: 0.4,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const ring = new THREE.Sprite(rMat);
+  const rs2 = r * 5;
+  ring.scale.set(rs2, rs2, 1);
+  ring.userData.baseScale = rs2;
+  group.add(ring);
 
-    group.userData.node = node;
-    group.userData.baseSize = baseSize;
-    return group;
-  }
+  // Label
+  const label = makeLabelSprite(node.name, node.type, color);
+  label.position.set(0, r + 10, 0);
+  label.userData.role = 'label';
+  group.add(label);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // TEXTURE HELPERS — procedural canvas textures
-  // ─────────────────────────────────────────────────────────────────────────
-  function makeHaloTexture() {
-    const size = 256;
-    const cnv = document.createElement('canvas');
-    cnv.width = cnv.height = size;
-    const ctx = cnv.getContext('2d');
-    const grad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
-    grad.addColorStop(0, 'rgba(255,255,255,1)');
-    grad.addColorStop(0.15, 'rgba(255,255,255,0.7)');
-    grad.addColorStop(0.4, 'rgba(255,255,255,0.15)');
-    grad.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, size, size);
-    const tex = new THREE.CanvasTexture(cnv);
-    tex.needsUpdate = true;
-    return tex;
-  }
+  group.userData.node = node;
+  nodeMeshes[node.id] = { group, sphere, halo, ring, node };
+  nodeGroups.add(group);
+}
 
-  function makeRingTexture() {
-    const size = 256;
-    const cnv = document.createElement('canvas');
-    cnv.width = cnv.height = size;
-    const ctx = cnv.getContext('2d');
-    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(size/2, size/2, size/2 - 8, 0, Math.PI * 2);
-    ctx.stroke();
-    const tex = new THREE.CanvasTexture(cnv);
-    tex.needsUpdate = true;
-    return tex;
-  }
+nodes.forEach(buildNode);
 
-  function makeParticleTexture() {
-    const size = 64;
-    const cnv = document.createElement('canvas');
-    cnv.width = cnv.height = size;
-    const ctx = cnv.getContext('2d');
-    const grad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
-    grad.addColorStop(0, 'rgba(255,255,255,1)');
-    grad.addColorStop(0.3, 'rgba(255,255,255,0.5)');
-    grad.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, size, size);
-    const tex = new THREE.CanvasTexture(cnv);
-    tex.needsUpdate = true;
-    return tex;
-  }
-
-  function makeLabelSprite(text, type, normWeight) {
-    const padding = 20;
-    normWeight = normWeight == null ? 0.5 : normWeight;
-    const baseFonts = { tradition: 56, thinker: 44, theme: 36 };
-    const fontSize = Math.round(baseFonts[type] * (0.7 + normWeight * 0.6));
-    const font = type === 'thinker' ? '500 ' + fontSize + 'px Inter, sans-serif' : fontSize + 'px Inter, sans-serif';
-    const cnv = document.createElement('canvas');
-    const ctx = cnv.getContext('2d');
-    ctx.font = font;
-    const metrics = ctx.measureText(text);
-    cnv.width = Math.ceil(metrics.width + padding * 2);
-    cnv.height = fontSize + padding * 2;
-    ctx.font = font;
-    ctx.fillStyle = type === 'thinker' ? '#f0c989' : type === 'tradition' ? '#e89089' : '#8ab8eb';
-    ctx.shadowColor = 'rgba(0,0,0,0.95)';
-    ctx.shadowBlur = 14;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text, cnv.width/2, cnv.height/2);
-    const tex = new THREE.CanvasTexture(cnv);
-    tex.needsUpdate = true;
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: true });
-    const sprite = new THREE.Sprite(mat);
-    const scale = cnv.width / 5;
-    sprite.scale.set(scale, scale * (cnv.height / cnv.width), 1);
-    return sprite;
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // ANIMATION LOOP — particle drift, node breathing, idle camera
-  // ─────────────────────────────────────────────────────────────────────────
-  let time = 0;
-  function animate() {
-    time += 0.01;
-    // Particle drift (only if particles were created)
-    if (particleGeo) {
-      const posAttr = particleGeo.attributes.position;
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        posAttr.array[i*3]   += velocities[i].x;
-        posAttr.array[i*3+1] += velocities[i].y;
-        posAttr.array[i*3+2] += velocities[i].z;
-        const x = posAttr.array[i*3], y = posAttr.array[i*3+1], z = posAttr.array[i*3+2];
-        const r = Math.sqrt(x*x + y*y + z*z);
-        if (r > 1500 || r < 300) {
-          const nr = 600 + Math.random() * 400;
-          posAttr.array[i*3]   = (x / r) * nr;
-          posAttr.array[i*3+1] = (y / r) * nr;
-          posAttr.array[i*3+2] = (z / r) * nr;
+// ─────────────────────────────────────────────────────────────────────────
+// INTRA-SPHERE WIRES — thin lines between nearby nodes on same sphere
+// ─────────────────────────────────────────────────────────────────────────
+function buildIntraWires() {
+  Object.entries(clusters).forEach(([type, clusterNodes]) => {
+    const color = PALETTE[type].int;
+    const positions = [];
+    const MAX_DIST = SPHERE_RADIUS * 1.2; // connect neighbours within 1.2× radius
+    for (let i = 0; i < clusterNodes.length; i++) {
+      for (let j = i+1; j < clusterNodes.length; j++) {
+        const a = clusterNodes[i], b = clusterNodes[j];
+        const dx = a.x-b.x, dy = a.y-b.y, dz = a.z-b.z;
+        const d = Math.sqrt(dx*dx+dy*dy+dz*dz);
+        if (d < MAX_DIST) {
+          positions.push(a.x,a.y,a.z, b.x,b.y,b.z);
         }
       }
-      posAttr.needsUpdate = true;
     }
-
-    // Node breathing (subtle scale pulse on the halos)
-    scene.traverse(obj => {
-      if (obj.userData && obj.userData.role === 'halo' && obj.userData.baseScale) {
-        const pulse = 1 + Math.sin(time * 0.8 + obj.parent.position.x * 0.01) * 0.06;
-        const s = obj.userData.baseScale * pulse;
-        obj.scale.set(s, s, 1);
-      }
-      if (obj.userData && obj.userData.role === 'ring' && obj.userData.baseScale) {
-        const pulse = 1 + Math.sin(time * 1.2 + obj.parent.position.y * 0.01 + 1) * 0.04;
-        const s = obj.userData.baseScale * pulse;
-        obj.scale.set(s, s, 1);
-      }
-      // Slow rotation on tradition domain wireframes — gives life and depth
-      if (obj.userData && obj.userData.role === 'domain-wire') {
-        obj.rotation.y += 0.0015;
-        obj.rotation.x += 0.0008;
-      }
+    if (!positions.length) return;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    const mat = new THREE.LineBasicMaterial({
+      color, transparent: true, opacity: 0.22,
+      depthWrite: false, blending: THREE.AdditiveBlending,
     });
+    scene.add(new THREE.LineSegments(geo, mat));
+  });
+}
+buildIntraWires();
 
-    // Auto-rotate
-    if (autoRotate && Graph.controls()) {
-      Graph.controls().autoRotate = true;
-      Graph.controls().autoRotateSpeed = 0.4;
-    } else if (Graph.controls()) {
-      Graph.controls().autoRotate = false;
+// ─────────────────────────────────────────────────────────────────────────
+// INTER-SPHERE STRING CONNECTORS — magenta lines between cluster spheres
+// ─────────────────────────────────────────────────────────────────────────
+function buildInterConnectors() {
+  // For each link, connect the two node positions with a magenta catenary curve
+  const crossPositions = [];
+  links.forEach(l => {
+    const a = nodeById[l.source], b = nodeById[l.target];
+    if (!a || !b || a.clusterType === b.clusterType) return;
+    // Straight line segment (we'll use many segments for catenary-like arc later)
+    crossPositions.push(a.x,a.y,a.z, b.x,b.y,b.z);
+  });
+  if (!crossPositions.length) return;
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(crossPositions, 3));
+  const mat = new THREE.LineBasicMaterial({
+    color: CROSS_COLOR, transparent: true, opacity: 0.14,
+    depthWrite: false, blending: THREE.AdditiveBlending,
+  });
+  scene.add(new THREE.LineSegments(geo, mat));
+
+  // Sphere-center-to-sphere-center thick connector tubes
+  const pairs = [
+    ['thinker','tradition'], ['thinker','theme'], ['tradition','theme'],
+  ];
+  pairs.forEach(([a, b]) => {
+    const ca = SPHERE_CENTERS[a], cb = SPHERE_CENTERS[b];
+    const pts = [];
+    const MID_SAG = 0.15; // sagging factor
+    const steps = 20;
+    for (let i = 0; i <= steps; i++) {
+      const t = i/steps;
+      const x = ca.x + (cb.x-ca.x)*t;
+      const y = ca.y + (cb.y-ca.y)*t - Math.sin(Math.PI*t)*MID_SAG*ca.distanceTo(cb);
+      const z = ca.z + (cb.z-ca.z)*t;
+      pts.push(new THREE.Vector3(x,y,z));
     }
+    const curve = new THREE.CatmullRomCurve3(pts);
+    const tubeGeo = new THREE.TubeGeometry(curve, 20, 0.6, 6, false);
+    const tubeMat = new THREE.MeshBasicMaterial({
+      color: CROSS_COLOR, transparent: true, opacity: 0.35,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    scene.add(new THREE.Mesh(tubeGeo, tubeMat));
+  });
+}
+buildInterConnectors();
 
-    requestAnimationFrame(animate);
+// ─────────────────────────────────────────────────────────────────────────
+// AMBIENT PARTICLE FIELD
+// ─────────────────────────────────────────────────────────────────────────
+const PARTICLE_COUNT = 1800;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(PARTICLE_COUNT * 3);
+const pVel = [];
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  const r = 500 + Math.random()*800;
+  const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
+  pPos[i*3]   = r*Math.sin(ph)*Math.cos(th);
+  pPos[i*3+1] = r*Math.sin(ph)*Math.sin(th);
+  pPos[i*3+2] = r*Math.cos(ph);
+  pVel.push({ x:(Math.random()-.5)*.04, y:(Math.random()-.5)*.04, z:(Math.random()-.5)*.04 });
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const pMat = new THREE.PointsMaterial({
+  size:1.8, map:glowTex, color:0x00FFE0,
+  transparent:true, opacity:0.35, sizeAttenuation:true,
+  depthWrite:false, blending:THREE.AdditiveBlending,
+});
+scene.add(new THREE.Points(pGeo, pMat));
+
+// Scattered bright glitch sparks (magenta)
+const sparkCount = 400;
+const sGeo2 = new THREE.BufferGeometry();
+const sPos2 = new Float32Array(sparkCount*3);
+for (let i=0;i<sparkCount;i++){
+  sPos2[i*3]=  (Math.random()-.5)*1400;
+  sPos2[i*3+1]=(Math.random()-.5)*1400;
+  sPos2[i*3+2]=(Math.random()-.5)*1400;
+}
+sGeo2.setAttribute('position', new THREE.BufferAttribute(sPos2, 3));
+const sMat2 = new THREE.PointsMaterial({
+  size:1.2, map:glowTex, color:0xFF2D78,
+  transparent:true, opacity:0.22, sizeAttenuation:true,
+  depthWrite:false, blending:THREE.AdditiveBlending,
+});
+scene.add(new THREE.Points(sGeo2, sMat2));
+
+// ─────────────────────────────────────────────────────────────────────────
+// LABEL HELPER
+// ─────────────────────────────────────────────────────────────────────────
+function makeLabelSprite(text, type, colorInt) {
+  const fontSize = type === 'tradition' ? 48 : 40;
+  const r=(colorInt>>16&255), g=(colorInt>>8&255), b=(colorInt&255);
+  const hexStr = `rgb(${r},${g},${b})`;
+  const cnv = document.createElement('canvas');
+  const ctx = cnv.getContext('2d');
+  const pad = 16;
+  ctx.font = `500 ${fontSize}px 'JetBrains Mono', Consolas, monospace`;
+  const w = Math.ceil(ctx.measureText(text).width + pad*2);
+  const h = fontSize + pad*2;
+  cnv.width = w; cnv.height = h;
+  ctx.font = `500 ${fontSize}px 'JetBrains Mono', Consolas, monospace`;
+  ctx.fillStyle = hexStr;
+  ctx.shadowColor = hexStr;
+  ctx.shadowBlur = 18;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, w/2, h/2);
+  const tex = new THREE.CanvasTexture(cnv); tex.needsUpdate = true;
+  const mat = new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false });
+  const sprite = new THREE.Sprite(mat);
+  const scale = w/5;
+  sprite.scale.set(scale, scale*(h/w), 1);
+  return sprite;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// INTERACTION — raycasting
+// ─────────────────────────────────────────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+raycaster.params.Points.threshold = 5;
+const mouse = new THREE.Vector2(-9999,-9999);
+let hoveredId = null;
+let selectedId = null;
+let showLabels = true;
+let autoRotate = true;
+
+const canvasEl = renderer.domElement;
+canvasEl.addEventListener('mousemove', e => {
+  const rect = canvasEl.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left)/rect.width)*2 - 1;
+  mouse.y = -((e.clientY - rect.top)/rect.height)*2 + 1;
+  document.getElementById('tooltip').style.left = (e.clientX+16)+'px';
+  document.getElementById('tooltip').style.top  = (e.clientY+16)+'px';
+});
+
+canvasEl.addEventListener('click', e => {
+  if (e.target !== canvasEl) return;
+  raycaster.setFromCamera(mouse, camera);
+  const spheres = Object.values(nodeMeshes).map(m => m.sphere);
+  const hits = raycaster.intersectObjects(spheres);
+  if (hits.length) {
+    const hit = hits[0].object;
+    const entry = Object.values(nodeMeshes).find(m => m.sphere === hit);
+    if (entry) { handleNodeClick(entry.node); return; }
   }
-  animate();
+  if (selectedId) handleEscape();
+});
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // INTERACTION HANDLERS
-  // ─────────────────────────────────────────────────────────────────────────
-  function handleNodeHover(node) {
-    document.getElementById('reticle').classList.toggle('hidden', !!node);
-    elem.style.cursor = node ? 'pointer' : 'grab';
+canvasEl.addEventListener('dblclick', () => {});
+
+// Hit-test on frame for hover
+function hitTest() {
+  raycaster.setFromCamera(mouse, camera);
+  const spheres = Object.values(nodeMeshes).map(m => m.sphere);
+  const hits = raycaster.intersectObjects(spheres);
+  const hit = hits.length ? hits[0].object : null;
+  const entry = hit ? Object.values(nodeMeshes).find(m => m.sphere === hit) : null;
+  const node = entry ? entry.node : null;
+  if (node?.id !== hoveredId) {
+    hoveredId = node?.id || null;
     showTooltip(node);
+    canvasEl.style.cursor = node ? 'pointer' : 'grab';
+    document.getElementById('reticle').classList.toggle('hidden', !!node);
   }
+}
 
-  function handleNodeClick(node) {
-    selectedNodeId = node.id;
-    document.getElementById('reticle').classList.add('hidden');
-    // Cinematic camera move
-    const distance = 90;
-    const distRatio = 1 + distance / Math.hypot(node.x || 1, node.y || 1, node.z || 1);
-    Graph.cameraPosition(
-      { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
-      node,
-      1400
-    );
-    openDetail(node);
-    Graph.refresh();
+function handleNodeClick(node) {
+  selectedId = node.id;
+  controls.autoRotate = false;
+  // Fly to node
+  const dist = 120;
+  const ratio = 1 + dist/Math.hypot(node.x||1, node.y||1, node.z||1);
+  const tx = node.x*ratio, ty = node.y*ratio, tz = node.z*ratio;
+  // Animate camera with spring
+  startFlyTo({ x:tx, y:ty, z:tz }, { x:node.x, y:node.y, z:node.z }, 1200);
+  openDetail(node);
+}
+
+function handleEscape() {
+  selectedId = null;
+  closeDetail();
+  startFlyTo({ x:0, y:80, z:580 }, { x:0, y:0, z:0 }, 1200);
+  if (autoRotate) controls.autoRotate = true;
+}
+
+// Spring camera animation
+let flyAnim = null;
+function startFlyTo(targetPos, targetLook, duration) {
+  const startPos = camera.position.clone();
+  const startLook = controls.target.clone();
+  const endPos = new THREE.Vector3(targetPos.x, targetPos.y, targetPos.z);
+  const endLook = new THREE.Vector3(targetLook.x, targetLook.y, targetLook.z);
+  const start = performance.now();
+  flyAnim = { startPos, startLook, endPos, endLook, start, duration };
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// TOOLTIP
+// ─────────────────────────────────────────────────────────────────────────
+const tooltip = document.getElementById('tooltip');
+function showTooltip(node) {
+  if (!node) { tooltip.classList.remove('show'); return; }
+  let meta = '';
+  if (node.type === 'thinker') {
+    const d = node.data;
+    meta = `${(d.disciplines||[]).slice(0,2).join(' · ')} · ${fmtYears(d.born,d.died)}`;
+  } else if (node.type === 'tradition') {
+    meta = node.data.period || '';
+  } else {
+    meta = 'Theme cluster · click to expand';
   }
+  tooltip.innerHTML = `<div class="tt-type">${node.type}</div><div class="tt-name">${esc(node.name)}</div><div class="tt-meta">${esc(meta)}</div>`;
+  tooltip.classList.add('show');
+}
 
-  function handleEscape() {
-    selectedNodeId = null;
-    closeDetail();
-    try { Graph.zoomToFit(1200, 80); } catch(e) {}
-    Graph.refresh();
-  }
+// ─────────────────────────────────────────────────────────────────────────
+// ANIMATION LOOP
+// ─────────────────────────────────────────────────────────────────────────
+let time = 0;
+const clock = new THREE.Clock();
 
-  function initialFocus() {
-    // Slow cinematic establishing shot
-    Graph.cameraPosition({ x: 0, y: 0, z: 360 }, { x:0, y:0, z:0 }, 2000);
-    setTimeout(() => {
-      const t = nodeById['lafayette'];
-      if (t) {
-        // Subtle drift to suggest exploration is possible
-        Graph.cameraPosition({ x: 60, y: 30, z: 320 }, { x:0, y:0, z:0 }, 3000);
-      }
-    }, 1800);
-  }
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  time += dt;
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // TOOLTIP
-  // ─────────────────────────────────────────────────────────────────────────
-  const tooltip = document.getElementById('tooltip');
-  function showTooltip(node) {
-    if (!node) { tooltip.classList.remove('show'); return; }
-    let meta = '';
-    if (node.type === 'thinker') {
-      const d = node.data;
-      meta = `${(d.disciplines||[]).slice(0,2).join(', ')} · ${formatYears(d.born, d.died)}`;
-    } else if (node.type === 'tradition') {
-      meta = node.data.period || '';
-    } else {
-      meta = 'Theme · click to expand';
+  // Particle drift
+  const posAttr = pGeo.attributes.position;
+  for (let i=0; i<PARTICLE_COUNT; i++) {
+    posAttr.array[i*3]   += pVel[i].x;
+    posAttr.array[i*3+1] += pVel[i].y;
+    posAttr.array[i*3+2] += pVel[i].z;
+    const x=posAttr.array[i*3],y=posAttr.array[i*3+1],z=posAttr.array[i*3+2];
+    const r=Math.sqrt(x*x+y*y+z*z);
+    if (r>1600||r<200){
+      const nr=500+Math.random()*500;
+      posAttr.array[i*3]=(x/r)*nr; posAttr.array[i*3+1]=(y/r)*nr; posAttr.array[i*3+2]=(z/r)*nr;
     }
-    tooltip.innerHTML = `<div class="tt-type">${node.type}</div><div class="tt-name">${esc(node.name)}</div><div class="tt-meta">${esc(meta)}</div>`;
-    tooltip.classList.add('show');
   }
-  document.addEventListener('mousemove', e => {
-    tooltip.style.left = (e.clientX + 18) + 'px';
-    tooltip.style.top = (e.clientY + 18) + 'px';
+  posAttr.needsUpdate = true;
+
+  // Sphere shell breathing + glitch pulse
+  Object.values(sphereShells).forEach(({ wireframe, ring, halo }, idx) => {
+    const pulse = 1 + Math.sin(time*0.7 + idx*2.1)*0.04;
+    ring.scale.setScalar(ring.scale.x / ring.userData._lastPulse || 1);
+    const rs = (SHELL_RADIUS+20)*2 * pulse;
+    ring.scale.set(rs, rs, 1);
+    ring.userData._lastPulse = pulse;
+    wireframe.material.opacity = 0.28 + Math.sin(time*0.5+idx)*0.06;
+    // Glitch flicker
+    if (Math.random() < 0.003) wireframe.material.opacity = Math.random()*0.6 + 0.1;
   });
 
-  function formatYears(born, died) {
-    if (!born) return '';
-    const b = born < 0 ? `${-born} BCE` : born;
-    const d = died ? (died < 0 ? `${-died} BCE` : died) : 'present';
-    return `${b} – ${d}`;
+  // Node halo breathing
+  Object.values(nodeMeshes).forEach(({ halo, ring, node }, idx) => {
+    const sel = node.id === selectedId;
+    const hov = node.id === hoveredId;
+    const pulse = 1 + Math.sin(time*(sel?2.5:0.9) + node.x*0.01)*0.07;
+    const bs = halo.userData.baseScale;
+    const scale = bs * (sel ? 2.2 : hov ? 1.6 : 1) * pulse;
+    halo.scale.set(scale, scale, 1);
+    const rs = ring.userData.baseScale * (sel ? 1.6 : hov ? 1.3 : 1);
+    ring.scale.set(rs, rs, 1);
+  });
+
+  // Camera fly animation
+  if (flyAnim) {
+    const elapsed = performance.now() - flyAnim.start;
+    const t = Math.min(elapsed/flyAnim.duration, 1);
+    const ease = t < 0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; // cubic ease in-out
+    camera.position.lerpVectors(flyAnim.startPos, flyAnim.endPos, ease);
+    controls.target.lerpVectors(flyAnim.startLook, flyAnim.endLook, ease);
+    if (t >= 1) flyAnim = null;
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // DETAIL PANEL
-  // ─────────────────────────────────────────────────────────────────────────
-  function openDetail(node) {
-    const c = document.getElementById('detailContent');
-    if (node.type === 'thinker') c.innerHTML = renderThinker(node.data);
-    else if (node.type === 'tradition') c.innerHTML = renderTradition(node.data);
-    else if (node.type === 'theme') c.innerHTML = renderTheme(node.data);
-    document.getElementById('detail').classList.add('open');
-    c.querySelectorAll('[data-jump]').forEach(el => {
-      el.addEventListener('click', e => { e.stopPropagation(); jumpToNode(el.dataset.jump); });
+  // Idle auto-rotate re-enable
+  if (autoRotate && !flyAnim && !selectedId) controls.autoRotate = true;
+
+  // Hit test every frame for hover
+  hitTest();
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// ─────────────────────────────────────────────────────────────────────────
+// FILTER SYSTEM
+// ─────────────────────────────────────────────────────────────────────────
+const filters = { thinker:true, tradition:true, theme:true };
+document.querySelectorAll('.filter-item').forEach(el => {
+  el.addEventListener('click', () => {
+    const type = el.dataset.type;
+    filters[type] = !filters[type];
+    el.classList.toggle('muted', !filters[type]);
+    // Show/hide sphere shell + nodes
+    const shell = sphereShells[type];
+    if (shell) shell.group.visible = filters[type];
+    Object.values(nodeMeshes).forEach(m => {
+      if (m.node.type === type) m.group.visible = filters[type];
     });
-    c.querySelectorAll('.cite-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        btn.classList.toggle('open');
-        btn.parentElement.querySelector('.cite-content').classList.toggle('open');
-      });
-    });
-  }
+  });
+});
 
-  window.closeDetail = function() {
-    selectedNodeId = null;
-    document.getElementById('detail').classList.remove('open');
-    Graph.refresh();
-  };
-
-  function jumpToNode(id) {
-    const n = nodeById[id];
-    if (!n) return;
-    handleNodeClick(n);
-  }
-
-  function renderThinker(t) {
-    const quotesBy = D.quotes.filter(q => q.thinker === t.id);
-    const quotesAbout = D.quotes.filter(q => q.aboutThinker === t.id);
-    const connections = [];
-    D.relationships.forEach(r => {
-      if (r.source === t.id) connections.push({ id:r.target, name:nodeById[r.target]?.name, relation:r.type, dir:'out' });
-      if (r.target === t.id) connections.push({ id:r.source, name:nodeById[r.source]?.name, relation:r.type, dir:'in' });
-    });
-    const tradTags = (t.traditions||[]).map(tr => {
-      const trad = nodeById[tr];
-      return trad ? `<span class="dtag tradition" data-jump="${tr}">${esc(trad.name)}</span>` : '';
-    }).join('');
-
-    return `
-      <div class="detail-head">
-        <div class="d-type">Thinker</div>
-        <div class="d-title">${esc(t.name)}</div>
-        ${t.fullName && t.fullName !== t.name ? `<div class="d-subtitle">${esc(t.fullName)}</div>` : ''}
-        <div class="d-coords">${formatYears(t.born, t.died)} · ${esc(t.nationality||'')}</div>
-        ${tradTags ? `<div class="d-tags">${tradTags}</div>` : ''}
-      </div>
-      <div class="detail-body">
-        ${t.bio ? `<div class="section"><div class="bio">${esc(t.bio)}</div></div>` : ''}
-        ${t.disciplines ? `<div class="section">
-          <div class="section-label">Disciplines</div>
-          <div class="d-tags">${t.disciplines.map(d => `<span class="dtag">${esc(d)}</span>`).join('')}</div>
-        </div>` : ''}
-        ${quotesBy.length ? `<div class="section">
-          <div class="section-label">Quotations by ${esc(t.name)} <span class="num">${String(quotesBy.length).padStart(2,'0')}</span></div>
-          ${quotesBy.map(q => renderQ(q)).join('')}
-        </div>` : ''}
-        ${quotesAbout.length ? `<div class="section">
-          <div class="section-label">Quotations about ${esc(t.name)} <span class="num">${String(quotesAbout.length).padStart(2,'0')}</span></div>
-          ${quotesAbout.map(q => renderQ(q, true)).join('')}
-        </div>` : ''}
-        ${connections.length ? `<div class="section">
-          <div class="section-label">Network connections <span class="num">${String(connections.length).padStart(2,'0')}</span></div>
-          <div class="conn-list">
-            ${connections.map(c => `
-              <div class="conn" data-jump="${c.id}">
-                <span class="conn-dot" style="background:var(--node-thinker); color:var(--node-thinker)"></span>
-                <span class="conn-label">${esc(c.name||c.id)}</span>
-                <span class="conn-rel">${c.dir==='out'?'→':'↩'} ${esc((c.relation||'').replace(/-/g,' '))}</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>` : ''}
-      </div>
-    `;
-  }
-
-  function renderTradition(t) {
-    const members = D.thinkers.filter(th => (th.traditions||[]).includes(t.id));
-    return `
-      <div class="detail-head">
-        <div class="d-type">Tradition</div>
-        <div class="d-title">${esc(t.name)}</div>
-        <div class="d-coords">${esc(t.period||'')}</div>
-      </div>
-      <div class="detail-body">
-        ${t.description ? `<div class="section"><div class="bio">${esc(t.description)}</div></div>` : ''}
-        ${members.length ? `<div class="section">
-          <div class="section-label">Thinkers within tradition <span class="num">${String(members.length).padStart(2,'0')}</span></div>
-          <div class="conn-list">
-            ${members.map(m => `
-              <div class="conn" data-jump="${m.id}">
-                <span class="conn-dot" style="background:var(--node-thinker); color:var(--node-thinker)"></span>
-                <span class="conn-label">${esc(m.name)}</span>
-                <span class="conn-rel">${formatYears(m.born, m.died)}</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>` : ''}
-      </div>
-    `;
-  }
-
-  function renderTheme(t) {
-    const qs = D.quotes.filter(q => (q.themes||[]).includes(t.id));
-    const thinkerIds = [...new Set(qs.map(q => q.thinker))];
-    return `
-      <div class="detail-head">
-        <div class="d-type">Theme</div>
-        <div class="d-title">${esc(t.name)}</div>
-      </div>
-      <div class="detail-body">
-        ${t.description ? `<div class="section"><div class="bio">${esc(t.description)}</div></div>` : ''}
-        ${thinkerIds.length ? `<div class="section">
-          <div class="section-label">Engaged by <span class="num">${String(thinkerIds.length).padStart(2,'0')}</span></div>
-          <div class="d-tags">
-            ${thinkerIds.map(id => nodeById[id] ? `<span class="dtag" data-jump="${id}">${esc(nodeById[id].name)}</span>` : '').join('')}
-          </div>
-        </div>` : ''}
-        ${qs.length ? `<div class="section">
-          <div class="section-label">Quotations on this theme <span class="num">${String(qs.length).padStart(2,'0')}</span></div>
-          ${qs.map(q => renderQ(q, false, true)).join('')}
-        </div>` : ''}
-      </div>
-    `;
-  }
-
-  function renderQ(q, isAbout, showSpeaker) {
-    const themeTags = (q.themes||[]).map(tid => {
-      const theme = nodeById[tid];
-      return theme ? `<span class="dtag theme" data-jump="${tid}">${esc(theme.name)}</span>` : '';
-    }).join('');
-    const provClass = q.provenance?.type || 'unknown';
-    const speaker = nodeById[q.thinker];
-    const ctx = (showSpeaker && speaker)
-      ? `<div class="qctx"><span class="speaker">${esc(speaker.name)}</span> ${esc(q.context||'')}</div>`
-      : `<div class="qctx">${esc(q.context||'')}</div>`;
-    const variantsHtml = q.variants && q.variants.length ? `
-      <div class="variants">
-        <div class="section-label" style="margin-bottom:0.45rem">Variant Translations</div>
-        ${q.variants.map(v => `<div class="variant">${esc(v.text)}<span class="variant-src">${esc(v.source)}</span></div>`).join('')}
-      </div>` : '';
-    return `
-      <div class="qcard">
-        <div class="qtext">${esc(q.text)}</div>
-        ${ctx}
-        ${themeTags ? `<div class="qthemes">${themeTags}</div>` : ''}
-        ${variantsHtml}
-        <div class="qcite">
-          <button class="cite-toggle">
-            <span class="chev">▸</span>
-            <span>Citation Apparatus</span>
-            <span class="prov ${provClass}">${provClass}</span>
-          </button>
-          <div class="cite-content">
-            ${q.citations?.chicago_footnote ? citeBlock('Chicago · Footnote', q.citations.chicago_footnote) : ''}
-            ${q.citations?.chicago_bibliography ? citeBlock('Chicago · Bibliography', q.citations.chicago_bibliography) : ''}
-            ${q.citations?.mla_intext ? citeBlock('MLA · In-Text', q.citations.mla_intext) : ''}
-            ${q.citations?.mla_works_cited ? citeBlock('MLA · Works Cited', q.citations.mla_works_cited) : ''}
-            ${q.provenance?.note ? `<div class="cite-note">Note: ${esc(q.provenance.note)}</div>` : ''}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function citeBlock(label, content) {
-    return `<div class="cite-block"><span class="cite-block-label">${label}</span>${escMarkdown(content)}</div>`;
-  }
-
-  function esc(s) {
-    if (s == null) return '';
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-  function escMarkdown(s) {
-    if (!s) return '';
-    return esc(s).replace(/\*([^*]+)\*/g, '<em>$1</em>');
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // FILTERS
-  // ─────────────────────────────────────────────────────────────────────────
-  document.querySelectorAll('.filter-item').forEach(el => {
+// ─────────────────────────────────────────────────────────────────────────
+// SEARCH
+// ─────────────────────────────────────────────────────────────────────────
+const searchInput = document.getElementById('search');
+const searchResults = document.getElementById('searchResults');
+searchInput.addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  if (q.length < 2) { searchResults.classList.remove('open'); return; }
+  const matches = nodes.filter(n => n.name.toLowerCase().includes(q)).slice(0,10);
+  if (!matches.length) { searchResults.classList.remove('open'); return; }
+  searchResults.innerHTML = matches.map(m => {
+    const meta = m.type === 'thinker' ? fmtYears(m.data.born,m.data.died) : m.type;
+    const c = PALETTE[m.type].hex;
+    return `<div class="search-result" data-id="${m.id}">
+      <span class="sr-dot" style="background:${c};box-shadow:0 0 8px ${c}"></span>
+      <div><div class="sr-title">${esc(m.name)}</div><div class="sr-meta">${esc(meta)}</div></div>
+    </div>`;
+  }).join('');
+  searchResults.classList.add('open');
+  searchResults.querySelectorAll('.search-result').forEach(el => {
     el.addEventListener('click', () => {
-      const type = el.dataset.type;
-      filters[type] = !filters[type];
-      el.classList.toggle('muted', !filters[type]);
-      refreshGraph();
+      const n = nodeById[el.dataset.id]; if(!n) return;
+      handleNodeClick(n);
+      searchInput.value=''; searchResults.classList.remove('open');
     });
   });
+});
+document.addEventListener('click', e => { if (!e.target.closest('.hud-tr')) searchResults.classList.remove('open'); });
 
-  function refreshGraph() {
-    const filteredNodes = nodes.filter(n => filters[n.type]);
-    const ids = new Set(filteredNodes.map(n => n.id));
-    const filteredLinks = links.filter(l => {
-      const sid = l.source.id || l.source;
-      const tid = l.target.id || l.target;
-      return ids.has(sid) && ids.has(tid);
-    });
-    Graph.graphData({ nodes: filteredNodes, links: filteredLinks });
+// ─────────────────────────────────────────────────────────────────────────
+// CONTROLS
+// ─────────────────────────────────────────────────────────────────────────
+document.getElementById('btn-reset').addEventListener('click', handleEscape);
+document.getElementById('btn-labels').addEventListener('click', () => {
+  showLabels = !showLabels;
+  document.getElementById('btn-labels').classList.toggle('active', showLabels);
+  nodeGroups.traverse(obj => { if (obj.userData.role === 'label') obj.visible = showLabels; });
+});
+document.getElementById('btn-rotate').addEventListener('click', () => {
+  autoRotate = !autoRotate;
+  controls.autoRotate = autoRotate;
+  document.getElementById('btn-rotate').classList.toggle('active', autoRotate);
+});
+document.getElementById('btn-rotate').classList.toggle('active', autoRotate);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (searchResults.classList.contains('open')) searchResults.classList.remove('open');
+    else handleEscape();
   }
+  if (e.key === '/' && document.activeElement !== searchInput) { e.preventDefault(); searchInput.focus(); }
+});
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // SEARCH
-  // ─────────────────────────────────────────────────────────────────────────
-  const searchInput = document.getElementById('search');
-  const searchResults = document.getElementById('searchResults');
-  searchInput.addEventListener('input', e => {
-    const q = e.target.value.trim().toLowerCase();
-    if (q.length < 2) { searchResults.classList.remove('open'); return; }
-    const matches = nodes.filter(n => n.name.toLowerCase().includes(q)).slice(0, 10);
-    if (!matches.length) { searchResults.classList.remove('open'); return; }
-    searchResults.innerHTML = matches.map(m => {
-      const meta = m.type === 'thinker' ? formatYears(m.data.born, m.data.died) : m.type;
-      const colorVar = `var(--node-${m.type})`;
-      return `<div class="search-result" data-jump="${m.id}">
-        <span class="sr-dot" style="background:${colorVar}; box-shadow:0 0 8px ${colorVar}"></span>
-        <div class="sr-text">
-          <div class="sr-title">${esc(m.name)}</div>
-          <div class="sr-meta">${esc(meta)}</div>
-        </div>
-      </div>`;
-    }).join('');
-    searchResults.classList.add('open');
-    searchResults.querySelectorAll('.search-result').forEach(el => {
-      el.addEventListener('click', () => {
-        jumpToNode(el.dataset.jump);
-        searchInput.value = '';
-        searchResults.classList.remove('open');
-      });
+// ─────────────────────────────────────────────────────────────────────────
+// DETAIL PANEL
+// ─────────────────────────────────────────────────────────────────────────
+function openDetail(node) {
+  const c = document.getElementById('detailContent');
+  if (node.type==='thinker')   c.innerHTML = renderThinker(node.data);
+  else if (node.type==='tradition') c.innerHTML = renderTradition(node.data);
+  else c.innerHTML = renderTheme(node.data);
+  document.getElementById('detail').classList.add('open');
+  c.querySelectorAll('[data-jump]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); const n=nodeById[el.dataset.jump]; if(n) handleNodeClick(n); });
+  });
+  c.querySelectorAll('.cite-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('open');
+      btn.parentElement.querySelector('.cite-content').classList.toggle('open');
     });
   });
-  document.addEventListener('click', e => {
-    if (!e.target.closest('.hud-tr')) searchResults.classList.remove('open');
-  });
+}
+window.closeDetail = function() {
+  selectedId = null;
+  document.getElementById('detail').classList.remove('open');
+  if (autoRotate) controls.autoRotate = true;
+};
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // CONTROLS
-  // ─────────────────────────────────────────────────────────────────────────
-  document.getElementById('btn-reset').addEventListener('click', handleEscape);
-  document.getElementById('btn-labels').addEventListener('click', () => {
-    showLabels = !showLabels;
-    document.getElementById('btn-labels').classList.toggle('active', showLabels);
-    scene.traverse(obj => {
-      if (obj.userData && obj.userData.role === 'label') {
-        obj.visible = showLabels;
-      }
-    });
+function renderThinker(t) {
+  const quotesBy = D.quotes.filter(q => q.thinker===t.id);
+  const quotesAbout = D.quotes.filter(q => q.aboutThinker===t.id);
+  const connections = [];
+  D.relationships.forEach(r => {
+    if (r.source===t.id) connections.push({id:r.target,name:nodeById[r.target]?.name,relation:r.type,dir:'out'});
+    if (r.target===t.id) connections.push({id:r.source,name:nodeById[r.source]?.name,relation:r.type,dir:'in'});
   });
-  document.getElementById('btn-labels').classList.add('active');
-  document.getElementById('btn-rotate').addEventListener('click', () => {
-    autoRotate = !autoRotate;
-    document.getElementById('btn-rotate').classList.toggle('active', autoRotate);
-  });
+  const tradTags = (t.traditions||[]).map(tr => {
+    const nd = nodeById[tr];
+    return nd ? `<span class="dtag tradition" data-jump="${tr}">${esc(nd.name)}</span>` : '';
+  }).join('');
+  return `
+    <div class="detail-head">
+      <div class="d-type">Thinker</div>
+      <div class="d-title">${esc(t.name)}</div>
+      ${t.fullName && t.fullName!==t.name ? `<div class="d-subtitle">${esc(t.fullName)}</div>` : ''}
+      <div class="d-coords">${fmtYears(t.born,t.died)} · ${esc(t.nationality||'')}</div>
+      ${tradTags ? `<div class="d-tags">${tradTags}</div>` : ''}
+    </div>
+    <div class="detail-body">
+      ${t.bio ? `<div class="section"><div class="bio">${esc(t.bio)}</div></div>` : ''}
+      ${t.disciplines ? `<div class="section"><div class="section-label">Disciplines</div><div class="d-tags">${t.disciplines.map(d=>`<span class="dtag">${esc(d)}</span>`).join('')}</div></div>` : ''}
+      ${quotesBy.length ? `<div class="section"><div class="section-label">Quotations by ${esc(t.name)} <span class="num">${String(quotesBy.length).padStart(2,'0')}</span></div>${quotesBy.map(q=>renderQ(q)).join('')}</div>` : ''}
+      ${quotesAbout.length ? `<div class="section"><div class="section-label">Quotations about ${esc(t.name)} <span class="num">${String(quotesAbout.length).padStart(2,'0')}</span></div>${quotesAbout.map(q=>renderQ(q,true)).join('')}</div>` : ''}
+      ${connections.length ? `<div class="section"><div class="section-label">Network connections <span class="num">${String(connections.length).padStart(2,'0')}</span></div><div class="conn-list">${connections.map(c=>`<div class="conn" data-jump="${c.id}"><span class="conn-dot" style="background:var(--node-thinker);color:var(--node-thinker)"></span><span class="conn-label">${esc(c.name||c.id)}</span><span class="conn-rel">${c.dir==='out'?'→':'↩'} ${esc((c.relation||'').replace(/-/g,' '))}</span></div>`).join('')}</div></div>` : ''}
+    </div>`;
+}
+function renderTradition(t) {
+  const members = D.thinkers.filter(th => (th.traditions||[]).includes(t.id));
+  return `
+    <div class="detail-head">
+      <div class="d-type">Tradition</div>
+      <div class="d-title">${esc(t.name)}</div>
+      <div class="d-coords">${esc(t.period||'')}</div>
+    </div>
+    <div class="detail-body">
+      ${t.description ? `<div class="section"><div class="bio">${esc(t.description)}</div></div>` : ''}
+      ${members.length ? `<div class="section"><div class="section-label">Thinkers <span class="num">${String(members.length).padStart(2,'0')}</span></div><div class="conn-list">${members.map(m=>`<div class="conn" data-jump="${m.id}"><span class="conn-dot" style="background:var(--node-thinker);color:var(--node-thinker)"></span><span class="conn-label">${esc(m.name)}</span><span class="conn-rel">${fmtYears(m.born,m.died)}</span></div>`).join('')}</div></div>` : ''}
+    </div>`;
+}
+function renderTheme(t) {
+  const qs = D.quotes.filter(q => (q.themes||[]).includes(t.id));
+  const thinkerIds = [...new Set(qs.map(q=>q.thinker))];
+  return `
+    <div class="detail-head">
+      <div class="d-type">Theme Cluster</div>
+      <div class="d-title">${esc(t.name)}</div>
+    </div>
+    <div class="detail-body">
+      ${t.description ? `<div class="section"><div class="bio">${esc(t.description)}</div></div>` : ''}
+      ${thinkerIds.length ? `<div class="section"><div class="section-label">Engaged by <span class="num">${String(thinkerIds.length).padStart(2,'0')}</span></div><div class="d-tags">${thinkerIds.map(id=>nodeById[id]?`<span class="dtag" data-jump="${id}">${esc(nodeById[id].name)}</span>`:'').join('')}</div></div>` : ''}
+      ${qs.length ? `<div class="section"><div class="section-label">Quotations <span class="num">${String(qs.length).padStart(2,'0')}</span></div>${qs.map(q=>renderQ(q,false,true)).join('')}</div>` : ''}
+    </div>`;
+}
+function renderQ(q, isAbout, showSpeaker) {
+  const themeTags = (q.themes||[]).map(tid => {
+    const theme = nodeById[tid];
+    return theme ? `<span class="dtag theme" data-jump="${tid}">${esc(theme.name)}</span>` : '';
+  }).join('');
+  const provClass = q.provenance?.type || 'unknown';
+  const speaker = nodeById[q.thinker];
+  const ctx = (showSpeaker && speaker)
+    ? `<div class="qctx"><span class="speaker">${esc(speaker.name)}</span>${esc(q.context||'')}</div>`
+    : `<div class="qctx">${esc(q.context||'')}</div>`;
+  const varHtml = q.variants?.length ? `<div style="margin-top:.6rem;padding-top:.6rem;border-top:1px dashed rgba(0,255,224,.1)">${q.variants.map(v=>`<div style="font-style:italic;font-size:.9rem;color:var(--text-dim);padding:.3rem 0 .3rem .8rem;border-left:2px solid var(--border)">${esc(v.text)}<span style="display:block;font-size:.62rem;font-family:var(--font-mono);color:var(--text-mute);margin-top:.15rem">${esc(v.source)}</span></div>`).join('')}</div>` : '';
+  return `<div class="qcard">
+    <div class="qtext">${esc(q.text)}</div>
+    ${ctx}
+    ${themeTags ? `<div class="qthemes">${themeTags}</div>` : ''}
+    ${varHtml}
+    <div class="qcite">
+      <button class="cite-toggle"><span class="chev">▸</span><span>Citation Apparatus</span><span class="prov ${provClass}">${provClass}</span></button>
+      <div class="cite-content">
+        ${q.citations?.chicago_footnote ? citeBlock('Chicago · Footnote',q.citations.chicago_footnote) : ''}
+        ${q.citations?.chicago_bibliography ? citeBlock('Chicago · Bibliography',q.citations.chicago_bibliography) : ''}
+        ${q.citations?.mla_intext ? citeBlock('MLA · In-Text',q.citations.mla_intext) : ''}
+        ${q.citations?.mla_works_cited ? citeBlock('MLA · Works Cited',q.citations.mla_works_cited) : ''}
+        ${q.provenance?.note ? `<div class="cite-note">Note: ${esc(q.provenance.note)}</div>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+function citeBlock(label, content) {
+  return `<div class="cite-block"><span class="cite-block-label">${label}</span>${escMd(content)}</div>`;
+}
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // KEYBOARD
-  // ─────────────────────────────────────────────────────────────────────────
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      if (searchResults.classList.contains('open')) searchResults.classList.remove('open');
-      else handleEscape();
-    }
-    if (e.key === '/' && document.activeElement !== searchInput) {
-      e.preventDefault(); searchInput.focus();
-    }
-  });
+// ─────────────────────────────────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────────────────────────────────
+function esc(s) {
+  if (s==null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escMd(s) {
+  if (!s) return '';
+  return esc(s).replace(/\*([^*]+)\*/g,'<em>$1</em>');
+}
+function fmtYears(born, died) {
+  if (!born) return '';
+  const b = born<0 ? `${-born} BCE` : born;
+  const d = died ? (died<0 ? `${-died} BCE` : died) : 'present';
+  return `${b} – ${d}`;
+}
 
 })();
 </script>
-</body>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
 </html>
