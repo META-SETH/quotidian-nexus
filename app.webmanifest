@@ -3,8 +3,8 @@
   "short_name": "Nexus",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0a0a14",
-  "theme_color": "#0a0a14",
+  "background_color": "#050510",
+  "theme_color": "#050510",
   "description": "A transdisciplinary archive of citations and connections.",
   "icons": []
 }

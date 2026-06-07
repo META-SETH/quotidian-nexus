@@ -8,51 +8,50 @@
 
 ## What Is This?
 
-The Quotidian Nexus is a navigable knowledge graph of thinkers, themes, traditions, and the citations that connect them. Every quotation is anchored to its source through a rigorous citation apparatus — Chicago, MLA, with provenance chains tracing primary and secondary sources.
+A 3D, real-time knowledge graph of thinkers, themes, traditions, and the citations that connect them. Every quotation is anchored to its source through a rigorous citation apparatus — Chicago, MLA, with provenance chains tracing primary and secondary sources.
 
-The name draws on a productive etymological ambiguity. *Quotidian* (from Latin *quotīdiē*, "every day") and *quotation* (from Latin *quotāre*, "to number, to cite") share the same Latin root — *quot*, "how many." The Nexus binds the everyday and the cited into a single graph: scholarship as a daily practice, daily reading as scholarship.
+Built with Three.js and force-graph physics. Atmospheric depth, ambient particle drift, glowing nodes, cinematic camera transitions. Inspired by TheBrain (focus-driven navigation) and the production aesthetics of Unity/Unreal sandbox interfaces.
 
 ## Architecture
 
-A static, client-side web application. No backend, no database, no API. The graph is a single JavaScript data file (`data/nexus.js`) rendered by [force-graph](https://github.com/vasturiano/force-graph).
+Static, client-side, deployable to GitHub Pages. No backend, no database.
 
 ```
 .
-├── index.html           # The application
+├── index.html           # Application (HTML + CSS + JS)
 ├── data/
-│   └── nexus.js         # Knowledge graph data (thinkers, quotes, themes, traditions, relationships)
+│   └── nexus.js         # Knowledge graph data
 ├── app.webmanifest      # PWA manifest
-├── .nojekyll            # Tells GitHub Pages to skip Jekyll
+├── .nojekyll            # Disable Jekyll on GitHub Pages
 └── README.md
 ```
 
+## Controls
+
+- **Drag** to orbit the camera
+- **Scroll** to zoom in / out
+- **Right-click + drag** to pan
+- **Click** a node to focus on it
+- **Esc** to release focus and return to wide view
+- **/** to jump to search
+- **Auto-Orbit** button toggles cinematic rotation
+
 ## Data Model
 
-- **Thinkers** — people whose words or ideas are recorded (with biographical metadata, disciplines, traditions)
-- **Quotations** — passages attributed to thinkers, tagged with themes, with full citation data and variant translations where applicable
-- **Themes** — concepts (Liberty, Power, Faith & Reason, Antifragility, etc.) traced across thinkers
-- **Traditions** — philosophical, religious, and political schools that group thinkers
-- **Relationships** — explicit edges between thinkers (influenced, contemporary, responded-to, served-under)
-
 Each quotation entry includes:
-- The text itself, with variant translations where they exist
-- Source context (where it was said, written, or published)
-- Citations in Chicago (Notes-Bibliography) and MLA (9th ed.) formats
-- A provenance type (`primary`, `secondary`, `tertiary`) marking how the quote was accessed
-- Cross-references to themes and to the thinkers it concerns
+- The text itself, with variant translations
+- Source context
+- Citations in Chicago (Notes-Bibliography) and MLA (9th ed.)
+- A provenance type marking primary, secondary, or tertiary access
+- Cross-references to themes and to subjects the quote concerns
 
-## Navigation
+Nodes:
+- **Thinkers** (gold) — people whose words are recorded
+- **Traditions** (red) — philosophical, religious, political schools
+- **Themes** (blue) — concepts traced across thinkers
 
-- **Click any node** to focus on it; the graph highlights its connections and opens a detail panel
-- **Click again on background** to release focus and return to the full view
-- **Search** by name in the top-right input — jumps directly to any node
-- **Filter** by node type via the legend in the bottom-left
-- **Press `/`** to jump to search; **`Esc`** to close panels
-
-## Contributing Quotations
-
-The current entries are seed data. The intent is to grow this archive over time, with the same citation rigor demonstrated in the existing entries. New entries should be added to `data/nexus.js` following the existing structure.
+Edges encode: belongs-to (thinker→tradition), wrote-about (thinker→theme), and explicit relationships (influenced, contemporary, responded-to, etc.).
 
 ---
 
-*Curated by [META-SETH](https://github.com/META-SETH). Built June 2026.*
+*Curated by [META-SETH](https://github.com/META-SETH). Version 0.2.0, June 2026.*
