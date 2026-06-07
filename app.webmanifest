@@ -1,0 +1,10 @@
+{
+  "name": "Quotidian Nexus",
+  "short_name": "Nexus",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a0a14",
+  "theme_color": "#0a0a14",
+  "description": "A transdisciplinary archive of citations and connections.",
+  "icons": []
+}

@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a14">
+<title>Quotidian Nexus</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='14' fill='%23d4a76a'/><circle cx='20' cy='30' r='6' fill='%236a8cc4'/><circle cx='80' cy='30' r='6' fill='%23a86a7a'/><circle cx='25' cy='75' r='6' fill='%237aa86a'/><circle cx='75' cy='75' r='6' fill='%23a8966a'/></svg>">
+<link rel="manifest" href="app.webmanifest">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/force-graph@1.43.4/dist/force-graph.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg-void: #0a0a14;
+  --bg-deep: #0f0f1c;
+  --bg-panel: rgba(15, 15, 28, 0.85);
+  --bg-panel-solid: #14142a;
+  --border-subtle: rgba(212, 167, 106, 0.15);
+  --border-strong: rgba(212, 167, 106, 0.4);
+  --text-primary: #e8e2d4;
+  --text-secondary: #a8a290;
+  --text-muted: #6b6754;
+  --accent-gold: #d4a76a;
+  --accent-gold-bright: #f0c989;
+  --accent-gold-dim: #8a6f44;
+  --node-thinker: #d4a76a;
+  --node-theme: #6a8cc4;
+  --node-tradition: #a86a7a;
+  --node-quote: #7aa86a;
+  --glow-gold: rgba(212, 167, 106, 0.4);
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, monospace;
+}
+
+html, body { height:100%; width:100%; overflow:hidden; background:var(--bg-void); color:var(--text-primary); font-family:var(--font-body); }
+
+/* ATMOSPHERIC BACKGROUND */
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:1;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(212, 167, 106, 0.08), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 70% 80%, rgba(106, 140, 196, 0.06), transparent 70%),
+    radial-gradient(ellipse 50% 70% at 50% 50%, rgba(168, 106, 122, 0.04), transparent 70%);
+}
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:2;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity:0.6;
+}
+
+/* GRAPH CANVAS */
+#graph-container { position:fixed; inset:0; z-index:5; }
+#graph-container canvas { display:block; }
+
+/* TOP BAR */
+.topbar {
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  padding:1.25rem 2rem;
+  display:flex; align-items:center; justify-content:space-between;
+  pointer-events:none;
+}
+.topbar > * { pointer-events:auto; }
+.brand {
+  font-family:var(--font-display);
+  font-size:1.5rem; font-weight:500; letter-spacing:0.02em;
+  color:var(--text-primary);
+  text-shadow:0 0 30px rgba(0,0,0,0.8);
+}
+.brand .nexus { color:var(--accent-gold); font-style:italic; }
+.brand-sub {
+  font-family:var(--font-body); font-size:0.7rem; font-weight:400;
+  color:var(--text-muted); text-transform:uppercase; letter-spacing:0.2em;
+  margin-top:0.15rem;
+}
+.search-container { position:relative; }
+.search-input {
+  background:var(--bg-panel);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border-subtle);
+  color:var(--text-primary);
+  padding:0.7rem 1rem 0.7rem 2.6rem;
+  border-radius:30px;
+  width:300px; font-size:0.85rem; font-family:var(--font-body);
+  transition:all 0.25s;
+}
+.search-input:focus { outline:none; border-color:var(--accent-gold); width:340px; box-shadow:0 0 30px rgba(212,167,106,0.15); }
+.search-input::placeholder { color:var(--text-muted); font-style:italic; }
+.search-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none; }
+.search-results {
+  position:absolute; top:calc(100% + 8px); left:0; right:0;
+  background:var(--bg-panel-solid);
+  border:1px solid var(--border-subtle);
+  border-radius:12px;
+  max-height:400px; overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  display:none;
+}
+.search-results.open { display:block; }
+.search-result {
+  padding:0.7rem 1rem; cursor:pointer;
+  border-bottom:1px solid var(--border-subtle);
+  transition:background 0.15s;
+}
+.search-result:hover { background:rgba(212,167,106,0.08); }
+.search-result:last-child { border-bottom:none; }
+.sr-title { font-size:0.85rem; color:var(--text-primary); }
+.sr-meta { font-size:0.7rem; color:var(--text-muted); margin-top:0.15rem; }
+
+/* LEGEND / FILTERS — bottom-left */
+.legend {
+  position:fixed; bottom:1.5rem; left:1.5rem; z-index:40;
+  background:var(--bg-panel);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border-subtle);
+  border-radius:12px; padding:0.85rem 1rem;
+  font-size:0.75rem;
+  min-width:200px;
+}
+.legend h4 {
+  font-family:var(--font-display); font-weight:500;
+  font-size:0.85rem; color:var(--accent-gold);
+  margin-bottom:0.6rem; letter-spacing:0.05em;
+}
+.legend-item {
+  display:flex; align-items:center; gap:0.5rem;
+  padding:0.3rem 0; cursor:pointer;
+  color:var(--text-secondary); transition:color 0.15s;
+  user-select:none;
+}
+.legend-item:hover { color:var(--text-primary); }
+.legend-item.muted { opacity:0.35; }
+.legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.legend-count { margin-left:auto; color:var(--text-muted); font-family:var(--font-mono); font-size:0.7rem; }
+
+/* CONTROLS — bottom right */
+.controls-bottom {
+  position:fixed; bottom:1.5rem; right:1.5rem; z-index:40;
+  display:flex; flex-direction:column; gap:0.5rem;
+}
+.ctrl-btn {
+  background:var(--bg-panel);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border-subtle);
+  border-radius:10px; padding:0.6rem 0.85rem;
+  color:var(--text-secondary); font-size:0.75rem;
+  cursor:pointer; transition:all 0.2s;
+  display:flex; align-items:center; gap:0.45rem;
+  font-family:var(--font-body);
+}
+.ctrl-btn:hover { color:var(--text-primary); border-color:var(--border-strong); }
+.ctrl-btn .key {
+  font-family:var(--font-mono); font-size:0.65rem;
+  background:rgba(255,255,255,0.05); padding:0.1rem 0.35rem;
+  border-radius:3px; color:var(--text-muted);
+}
+
+/* DETAIL PANEL */
+.detail-panel {
+  position:fixed; top:0; right:-560px; bottom:0; width:560px; max-width:100vw;
+  background:var(--bg-panel-solid);
+  border-left:1px solid var(--border-subtle);
+  z-index:100; overflow-y:auto;
+  transition:right 0.45s cubic-bezier(0.25, 1, 0.35, 1);
+  box-shadow:-20px 0 80px rgba(0,0,0,0.5);
+}
+.detail-panel.open { right:0; }
+.detail-panel::-webkit-scrollbar { width:6px; }
+.detail-panel::-webkit-scrollbar-track { background:transparent; }
+.detail-panel::-webkit-scrollbar-thumb { background:var(--border-subtle); border-radius:3px; }
+
+.detail-header {
+  padding:2rem 2rem 1rem;
+  border-bottom:1px solid var(--border-subtle);
+  position:sticky; top:0; background:var(--bg-panel-solid); z-index:5;
+}
+.detail-close {
+  position:absolute; top:1rem; right:1rem;
+  background:none; border:none; color:var(--text-secondary);
+  font-size:1.5rem; cursor:pointer;
+  width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+  border-radius:50%; transition:all 0.2s;
+}
+.detail-close:hover { background:rgba(255,255,255,0.05); color:var(--accent-gold); }
+.detail-type {
+  font-family:var(--font-body); text-transform:uppercase;
+  letter-spacing:0.2em; font-size:0.65rem; font-weight:500;
+  color:var(--accent-gold-dim); margin-bottom:0.5rem;
+}
+.detail-title {
+  font-family:var(--font-display);
+  font-size:1.9rem; font-weight:500; line-height:1.15;
+  color:var(--text-primary); margin-bottom:0.5rem;
+}
+.detail-subtitle {
+  font-family:var(--font-body); font-size:0.85rem;
+  color:var(--text-secondary); margin-bottom:0.4rem;
+}
+.detail-dates {
+  font-family:var(--font-mono); font-size:0.75rem;
+  color:var(--text-muted); letter-spacing:0.05em;
+}
+.detail-tags { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:1rem; }
+.dtag {
+  display:inline-flex; align-items:center; gap:0.3rem;
+  padding:0.25rem 0.6rem; border-radius:20px;
+  font-size:0.7rem; font-weight:500;
+  border:1px solid var(--border-subtle);
+  color:var(--text-secondary); cursor:pointer;
+  transition:all 0.15s;
+}
+.dtag:hover { border-color:var(--accent-gold); color:var(--accent-gold); }
+.dtag.tradition { background:rgba(168, 106, 122, 0.1); border-color:rgba(168, 106, 122, 0.3); }
+.dtag.theme { background:rgba(106, 140, 196, 0.1); border-color:rgba(106, 140, 196, 0.3); }
+
+.detail-body { padding:1.5rem 2rem 3rem; }
+.detail-section { margin-bottom:1.75rem; }
+.detail-section:last-child { margin-bottom:0; }
+.section-label {
+  font-family:var(--font-body); text-transform:uppercase;
+  letter-spacing:0.18em; font-size:0.65rem; font-weight:600;
+  color:var(--accent-gold-dim); margin-bottom:0.6rem;
+}
+.detail-bio {
+  font-family:var(--font-display); font-size:1.05rem;
+  font-style:italic; line-height:1.55; color:var(--text-secondary);
+}
+
+/* QUOTE CARDS */
+.quote-card {
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border-subtle);
+  border-left:3px solid var(--accent-gold-dim);
+  border-radius:6px; padding:1.25rem; margin-bottom:0.85rem;
+  transition:all 0.2s;
+}
+.quote-card:hover { border-left-color:var(--accent-gold); background:rgba(255,255,255,0.03); }
+.quote-text {
+  font-family:var(--font-display); font-size:1.05rem;
+  line-height:1.55; color:var(--text-primary);
+  margin-bottom:0.85rem; font-style:italic;
+}
+.quote-text::before { content:'"'; font-size:1.5em; color:var(--accent-gold); margin-right:0.1em; line-height:0; vertical-align:-0.3em; }
+.quote-text::after { content:'"'; font-size:1.5em; color:var(--accent-gold); margin-left:0.05em; line-height:0; vertical-align:-0.3em; }
+.quote-context {
+  font-size:0.78rem; color:var(--text-muted);
+  margin-bottom:0.65rem; font-style:italic;
+}
+.quote-themes { display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.85rem; }
+.quote-citations {
+  border-top:1px dashed var(--border-subtle);
+  padding-top:0.85rem; margin-top:0.5rem;
+}
+.cite-toggle {
+  font-family:var(--font-body); font-size:0.7rem; font-weight:500;
+  color:var(--accent-gold-dim); cursor:pointer;
+  background:none; border:none; padding:0;
+  letter-spacing:0.1em; text-transform:uppercase;
+}
+.cite-toggle:hover { color:var(--accent-gold); }
+.cite-toggle .arrow { display:inline-block; transition:transform 0.2s; }
+.cite-toggle.open .arrow { transform:rotate(90deg); }
+.cite-content {
+  display:none; margin-top:0.75rem;
+  font-family:var(--font-mono); font-size:0.72rem;
+  color:var(--text-secondary); line-height:1.6;
+}
+.cite-content.open { display:block; }
+.cite-format {
+  margin-bottom:0.6rem;
+  padding:0.5rem 0.7rem;
+  background:rgba(0,0,0,0.3); border-radius:4px;
+  border-left:2px solid var(--accent-gold-dim);
+}
+.cite-format-label {
+  font-family:var(--font-body); font-size:0.6rem; font-weight:600;
+  text-transform:uppercase; letter-spacing:0.15em;
+  color:var(--accent-gold-dim); margin-bottom:0.35rem;
+}
+.provenance-badge {
+  display:inline-block; padding:0.15rem 0.5rem;
+  border-radius:3px; font-size:0.65rem;
+  font-family:var(--font-mono); font-weight:500;
+  margin-right:0.5rem;
+}
+.prov-primary { background:rgba(122, 168, 106, 0.15); color:#9bc985; border:1px solid rgba(122, 168, 106, 0.3); }
+.prov-secondary { background:rgba(212, 167, 106, 0.15); color:var(--accent-gold-bright); border:1px solid rgba(212, 167, 106, 0.3); }
+.prov-tertiary { background:rgba(168, 106, 122, 0.15); color:#d090a0; border:1px solid rgba(168, 106, 122, 0.3); }
+
+.connections-list {
+  display:flex; flex-direction:column; gap:0.35rem;
+}
+.connection-item {
+  display:flex; align-items:center; gap:0.7rem;
+  padding:0.55rem 0.75rem;
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border-subtle);
+  border-radius:6px; cursor:pointer;
+  transition:all 0.15s;
+}
+.connection-item:hover { border-color:var(--accent-gold); background:rgba(212,167,106,0.05); }
+.connection-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.connection-label { flex:1; font-size:0.85rem; color:var(--text-primary); }
+.connection-relation { font-size:0.7rem; color:var(--text-muted); font-style:italic; }
+
+.variants-section {
+  margin-top:0.85rem; padding-top:0.85rem;
+  border-top:1px dashed var(--border-subtle);
+}
+.variant {
+  font-family:var(--font-display); font-style:italic;
+  font-size:0.9rem; color:var(--text-secondary);
+  margin-bottom:0.4rem; padding-left:0.85rem;
+  border-left:2px solid var(--border-subtle);
+}
+.variant-source { font-family:var(--font-body); font-size:0.7rem; color:var(--text-muted); font-style:normal; }
+
+/* INFO POPOVER (when hovering nodes) */
+.node-tooltip {
+  position:fixed; z-index:60;
+  background:var(--bg-panel-solid);
+  border:1px solid var(--border-subtle);
+  border-radius:8px; padding:0.6rem 0.85rem;
+  font-size:0.8rem; color:var(--text-primary);
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  pointer-events:none; opacity:0;
+  transition:opacity 0.15s;
+  max-width:280px;
+}
+.node-tooltip.show { opacity:1; }
+.tt-title { font-weight:500; margin-bottom:0.2rem; }
+.tt-meta { font-size:0.7rem; color:var(--text-muted); }
+
+/* WELCOME OVERLAY */
+.welcome {
+  position:fixed; inset:0; z-index:200;
+  background:radial-gradient(ellipse at center, rgba(10,10,20,0.95) 0%, rgba(10,10,20,1) 80%);
+  backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  transition:opacity 0.6s, visibility 0.6s;
+}
+.welcome.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+.welcome-inner {
+  max-width:540px; padding:3rem; text-align:center;
+}
+.welcome h1 {
+  font-family:var(--font-display); font-weight:500;
+  font-size:3.5rem; line-height:1; letter-spacing:-0.02em;
+  margin-bottom:0.4rem;
+}
+.welcome h1 .accent { color:var(--accent-gold); font-style:italic; }
+.welcome-tag {
+  font-size:0.75rem; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:0.3em;
+  margin-bottom:2rem;
+}
+.welcome-tagline {
+  font-family:var(--font-display); font-style:italic;
+  font-size:1.15rem; line-height:1.5;
+  color:var(--text-secondary); margin-bottom:2rem;
+  font-weight:400;
+}
+.welcome-stats {
+  display:flex; justify-content:center; gap:2rem;
+  margin-bottom:2rem;
+  font-family:var(--font-mono); font-size:0.8rem;
+  color:var(--text-secondary);
+}
+.welcome-stat strong { display:block; font-size:1.6rem; color:var(--accent-gold); font-family:var(--font-display); }
+.welcome-cta {
+  background:var(--accent-gold); color:var(--bg-void);
+  border:none; padding:0.85rem 2.5rem; border-radius:30px;
+  font-family:var(--font-body); font-size:0.85rem; font-weight:600;
+  letter-spacing:0.08em; text-transform:uppercase;
+  cursor:pointer; transition:all 0.2s;
+}
+.welcome-cta:hover { background:var(--accent-gold-bright); transform:translateY(-1px); box-shadow:0 8px 30px rgba(212,167,106,0.4); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .topbar { padding:1rem; flex-direction:column; gap:0.75rem; align-items:stretch; }
+  .search-input { width:100%; }
+  .search-input:focus { width:100%; }
+  .legend { left:0.75rem; right:0.75rem; bottom:0.75rem; }
+  .controls-bottom { top:5rem; right:0.75rem; bottom:auto; }
+  .detail-panel { width:100%; }
+  .welcome h1 { font-size:2.5rem; }
+  .welcome-inner { padding:1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- WELCOME OVERLAY -->
+<div class="welcome" id="welcome">
+  <div class="welcome-inner">
+    <h1>Quotidian <span class="accent">Nexus</span></h1>
+    <div class="welcome-tag">A Transdisciplinary Archive</div>
+    <div class="welcome-tagline">
+      A graph of thinkers, themes, and traditions — every connection traced through cited primary and secondary sources.
+    </div>
+    <div class="welcome-stats" id="welcomeStats"></div>
+    <button class="welcome-cta" onclick="enterNexus()">Enter the Nexus</button>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">
+    Quotidian <span class="nexus">Nexus</span>
+    <div class="brand-sub">A Transdisciplinary Archive</div>
+  </div>
+  <div class="search-container">
+    <span class="search-icon">⌕</span>
+    <input type="text" class="search-input" id="searchInput" placeholder="Search thinkers, themes, traditions...">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- GRAPH CANVAS -->
+<div id="graph-container"></div>
+
+<!-- LEGEND / FILTERS -->
+<div class="legend" id="legend">
+  <h4>Filter</h4>
+  <div class="legend-item" data-type="thinker">
+    <span class="legend-dot" style="background:var(--node-thinker)"></span>
+    Thinkers <span class="legend-count" id="count-thinker">0</span>
+  </div>
+  <div class="legend-item" data-type="tradition">
+    <span class="legend-dot" style="background:var(--node-tradition)"></span>
+    Traditions <span class="legend-count" id="count-tradition">0</span>
+  </div>
+  <div class="legend-item" data-type="theme">
+    <span class="legend-dot" style="background:var(--node-theme)"></span>
+    Themes <span class="legend-count" id="count-theme">0</span>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls-bottom">
+  <button class="ctrl-btn" onclick="resetView()" title="Re-center graph">
+    <span>◌</span> Reset View
+  </button>
+  <button class="ctrl-btn" onclick="toggleLabels()" id="labelsBtn" title="Toggle labels">
+    <span>Aa</span> Labels
+  </button>
+</div>
+
+<!-- TOOLTIP -->
+<div class="node-tooltip" id="tooltip"></div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <button class="detail-close" onclick="closeDetail()">✕</button>
+  <div id="detailContent"></div>
+</div>
+
+<script src="data/nexus.js"></script>
+<script>
+(function() {
+  'use strict';
+  const D = window.nexusData;
+
+  // ─── Build graph data from nexus data ──────────────────────────────────────
+  const nodes = [];
+  const links = [];
+  const nodeById = {};
+
+  // Add thinker nodes
+  D.thinkers.forEach(t => {
+    const n = {
+      id: t.id, type: 'thinker', name: t.name,
+      data: t,
+      val: 6, // size hint for force-graph
+      color: 'var(--node-thinker)'
+    };
+    nodes.push(n);
+    nodeById[t.id] = n;
+  });
+
+  // Add tradition nodes
+  D.traditions.forEach(t => {
+    // Only include traditions actually referenced
+    const used = D.thinkers.some(thk => thk.traditions && thk.traditions.includes(t.id));
+    if (!used) return;
+    const n = {
+      id: t.id, type: 'tradition', name: t.name,
+      data: t, val: 10,
+      color: 'var(--node-tradition)'
+    };
+    nodes.push(n);
+    nodeById[t.id] = n;
+  });
+
+  // Add theme nodes
+  D.themes.forEach(t => {
+    const used = D.quotes.some(q => q.themes && q.themes.includes(t.id));
+    if (!used) return;
+    const n = {
+      id: t.id, type: 'theme', name: t.name,
+      data: t, val: 4,
+      color: 'var(--node-theme)'
+    };
+    nodes.push(n);
+    nodeById[t.id] = n;
+  });
+
+  // Build edges:
+  // Thinker → Tradition
+  D.thinkers.forEach(t => {
+    (t.traditions || []).forEach(trad => {
+      if (nodeById[trad]) {
+        links.push({ source: t.id, target: trad, kind: 'belongs-to', value: 1 });
+      }
+    });
+  });
+
+  // Thinker → Theme (via their quotes)
+  const thinkerThemeMap = {};
+  D.quotes.forEach(q => {
+    (q.themes || []).forEach(theme => {
+      const key = q.thinker + '::' + theme;
+      if (!thinkerThemeMap[key] && nodeById[theme] && nodeById[q.thinker]) {
+        thinkerThemeMap[key] = true;
+        links.push({ source: q.thinker, target: theme, kind: 'wrote-about', value: 0.5 });
+      }
+    });
+  });
+
+  // Thinker → Thinker relationships
+  D.relationships.forEach(r => {
+    if (nodeById[r.source] && nodeById[r.target]) {
+      links.push({ source: r.source, target: r.target, kind: r.type, value: 1.5 });
+    }
+  });
+
+  // ─── Resolve CSS color vars to actual hex values ───────────────────────────
+  function resolveCSSVar(varRef) {
+    const m = varRef.match(/var\((--[^)]+)\)/);
+    if (!m) return varRef;
+    return getComputedStyle(document.documentElement).getPropertyValue(m[1]).trim() || varRef;
+  }
+  nodes.forEach(n => { n.color = resolveCSSVar(n.color); });
+
+  // ─── Update counts in legend ───────────────────────────────────────────────
+  const typeCounts = { thinker:0, tradition:0, theme:0 };
+  nodes.forEach(n => { typeCounts[n.type] = (typeCounts[n.type]||0) + 1; });
+  document.getElementById('count-thinker').textContent = typeCounts.thinker;
+  document.getElementById('count-tradition').textContent = typeCounts.tradition;
+  document.getElementById('count-theme').textContent = typeCounts.theme;
+
+  // Welcome stats
+  document.getElementById('welcomeStats').innerHTML = `
+    <div class="welcome-stat"><strong>${D.thinkers.length}</strong>Thinkers</div>
+    <div class="welcome-stat"><strong>${D.quotes.length}</strong>Quotations</div>
+    <div class="welcome-stat"><strong>${typeCounts.tradition}</strong>Traditions</div>
+    <div class="welcome-stat"><strong>${typeCounts.theme}</strong>Themes</div>
+  `;
+
+  // ─── Filter state ──────────────────────────────────────────────────────────
+  const filters = { thinker:true, tradition:true, theme:true };
+  let showLabels = true;
+  let selectedNodeId = null;
+
+  document.querySelectorAll('.legend-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const type = el.dataset.type;
+      filters[type] = !filters[type];
+      el.classList.toggle('muted', !filters[type]);
+      refreshGraph();
+    });
+  });
+
+  // ─── Build the force graph ─────────────────────────────────────────────────
+  const elem = document.getElementById('graph-container');
+  const Graph = ForceGraph()(elem)
+    .backgroundColor('rgba(0,0,0,0)')
+    .graphData({ nodes, links })
+    .nodeId('id')
+    .nodeRelSize(5)
+    .nodeVal('val')
+    .linkColor(l => {
+      if (selectedNodeId) {
+        if (l.source.id === selectedNodeId || l.target.id === selectedNodeId) return 'rgba(212,167,106,0.6)';
+        return 'rgba(255,255,255,0.04)';
+      }
+      return 'rgba(212,167,106,0.18)';
+    })
+    .linkWidth(l => {
+      if (selectedNodeId && (l.source.id === selectedNodeId || l.target.id === selectedNodeId)) return 1.5;
+      return 0.6;
+    })
+    .linkDirectionalParticles(l => {
+      if (selectedNodeId && (l.source.id === selectedNodeId || l.target.id === selectedNodeId)) return 2;
+      return 0;
+    })
+    .linkDirectionalParticleSpeed(0.006)
+    .linkDirectionalParticleColor(() => 'rgba(240,201,137,0.9)')
+    .linkDirectionalParticleWidth(2)
+    .nodeCanvasObject((node, ctx, globalScale) => {
+      const isSelected = node.id === selectedNodeId;
+      const isNeighbor = selectedNodeId && links.some(l =>
+        ((l.source.id||l.source) === selectedNodeId && (l.target.id||l.target) === node.id) ||
+        ((l.target.id||l.target) === selectedNodeId && (l.source.id||l.source) === node.id)
+      );
+      const dim = selectedNodeId && !isSelected && !isNeighbor;
+      const baseRadius = Math.sqrt(node.val) * 3;
+      const radius = isSelected ? baseRadius * 1.4 : baseRadius;
+      const alpha = dim ? 0.18 : 1;
+
+      // Glow
+      if (isSelected || isNeighbor) {
+        const grad = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, radius * 4);
+        grad.addColorStop(0, hexToRgba(node.color, isSelected ? 0.55 : 0.25));
+        grad.addColorStop(1, hexToRgba(node.color, 0));
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius * 4, 0, 2*Math.PI, false);
+        ctx.fill();
+      }
+
+      // Node circle
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, radius, 0, 2*Math.PI, false);
+      ctx.fillStyle = hexToRgba(node.color, alpha);
+      ctx.fill();
+      if (isSelected) {
+        ctx.strokeStyle = '#f0c989';
+        ctx.lineWidth = 2 / globalScale;
+        ctx.stroke();
+      }
+
+      // Label
+      const showLabel = showLabels && (globalScale > 0.7 || isSelected || isNeighbor);
+      if (showLabel) {
+        const fontSize = node.type === 'tradition' ? 13/globalScale : node.type === 'theme' ? 11/globalScale : 12/globalScale;
+        ctx.font = `${node.type === 'thinker' ? '500' : '400'} ${fontSize}px Inter, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = isSelected ? '#f0c989' : (dim ? 'rgba(168,162,144,0.35)' : 'rgba(232,226,212,0.95)');
+        ctx.fillText(node.name, node.x, node.y + radius + 4);
+      }
+    })
+    .nodePointerAreaPaint((node, color, ctx) => {
+      const r = Math.sqrt(node.val) * 3 + 6;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r, 0, 2*Math.PI, false);
+      ctx.fill();
+    })
+    .onNodeHover(node => {
+      elem.style.cursor = node ? 'pointer' : 'default';
+      showTooltip(node);
+    })
+    .onNodeClick(node => {
+      focusNode(node);
+    })
+    .onBackgroundClick(() => {
+      if (selectedNodeId) {
+        selectedNodeId = null;
+        closeDetail();
+        Graph.zoomToFit(800, 80);
+      }
+    })
+    .d3AlphaDecay(0.02)
+    .d3VelocityDecay(0.3)
+    .cooldownTicks(140);
+
+  // Forces tuning
+  Graph.d3Force('charge').strength(-280);
+  Graph.d3Force('link').distance(l => l.kind === 'belongs-to' ? 100 : l.kind === 'wrote-about' ? 80 : 120);
+
+  // Resize handling
+  function resizeGraph() {
+    Graph.width(window.innerWidth).height(window.innerHeight);
+  }
+  resizeGraph();
+  window.addEventListener('resize', resizeGraph);
+
+  // Initial zoom-to-fit after layout settles
+  setTimeout(() => Graph.zoomToFit(1200, 80), 600);
+
+  function refreshGraph() {
+    const filteredNodes = nodes.filter(n => filters[n.type]);
+    const filteredIds = new Set(filteredNodes.map(n => n.id));
+    const filteredLinks = links.filter(l => {
+      const sid = l.source.id || l.source;
+      const tid = l.target.id || l.target;
+      return filteredIds.has(sid) && filteredIds.has(tid);
+    });
+    Graph.graphData({ nodes: filteredNodes, links: filteredLinks });
+  }
+
+  // ─── Color util ────────────────────────────────────────────────────────────
+  function hexToRgba(hex, a) {
+    if (hex.startsWith('rgba') || hex.startsWith('rgb')) return hex;
+    let h = hex.replace('#','');
+    if (h.length === 3) h = h.split('').map(c => c+c).join('');
+    const r = parseInt(h.substr(0,2),16);
+    const g = parseInt(h.substr(2,2),16);
+    const b = parseInt(h.substr(4,2),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  // ─── Tooltip ───────────────────────────────────────────────────────────────
+  const tooltip = document.getElementById('tooltip');
+  function showTooltip(node) {
+    if (!node) { tooltip.classList.remove('show'); return; }
+    let meta = '';
+    if (node.type === 'thinker') {
+      const d = node.data;
+      meta = `${d.disciplines?.join(', ') || ''} · ${formatYears(d.born, d.died)}`;
+    } else if (node.type === 'tradition') {
+      meta = node.data.period || '';
+    } else if (node.type === 'theme') {
+      meta = 'Theme';
+    }
+    tooltip.innerHTML = `<div class="tt-title">${node.name}</div><div class="tt-meta">${meta}</div>`;
+    tooltip.classList.add('show');
+  }
+  document.addEventListener('mousemove', (e) => {
+    tooltip.style.left = (e.clientX + 14) + 'px';
+    tooltip.style.top = (e.clientY + 14) + 'px';
+  });
+
+  function formatYears(born, died) {
+    if (!born) return '';
+    const b = born < 0 ? `${-born} BCE` : born;
+    const d = died ? (died < 0 ? `${-died} BCE` : died) : 'present';
+    return `${b} – ${d}`;
+  }
+
+  // ─── Focus / Detail ────────────────────────────────────────────────────────
+  function focusNode(node) {
+    selectedNodeId = node.id;
+    Graph.centerAt(node.x, node.y, 700);
+    Graph.zoom(2.4, 700);
+    openDetail(node);
+    Graph.refresh();
+  }
+
+  function openDetail(node) {
+    const c = document.getElementById('detailContent');
+    if (node.type === 'thinker') c.innerHTML = renderThinker(node.data);
+    else if (node.type === 'tradition') c.innerHTML = renderTradition(node.data);
+    else if (node.type === 'theme') c.innerHTML = renderTheme(node.data);
+    document.getElementById('detailPanel').classList.add('open');
+    // Attach click handlers for embedded links
+    c.querySelectorAll('[data-jump]').forEach(el => {
+      el.addEventListener('click', () => jumpToNode(el.dataset.jump));
+    });
+    c.querySelectorAll('.cite-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('open');
+        btn.nextElementSibling.classList.toggle('open');
+      });
+    });
+  }
+
+  function jumpToNode(id) {
+    const n = nodeById[id];
+    if (!n) return;
+    focusNode(n);
+  }
+
+  window.closeDetail = function() {
+    selectedNodeId = null;
+    document.getElementById('detailPanel').classList.remove('open');
+    Graph.refresh();
+  };
+
+  // ─── Render functions ──────────────────────────────────────────────────────
+  function renderThinker(t) {
+    const quotesBy = D.quotes.filter(q => q.thinker === t.id);
+    const quotesAbout = D.quotes.filter(q => q.aboutThinker === t.id);
+
+    const connections = [];
+    D.relationships.forEach(r => {
+      if (r.source === t.id) connections.push({ id: r.target, name: nodeById[r.target]?.name, relation: r.type, dir:'out' });
+      if (r.target === t.id) connections.push({ id: r.source, name: nodeById[r.source]?.name, relation: r.type, dir:'in' });
+    });
+
+    const traditionTags = (t.traditions || []).map(tr => {
+      const trad = nodeById[tr];
+      return trad ? `<span class="dtag tradition" data-jump="${tr}">${trad.name}</span>` : '';
+    }).join('');
+
+    return `
+      <div class="detail-header">
+        <div class="detail-type">Thinker</div>
+        <div class="detail-title">${esc(t.name)}</div>
+        ${t.fullName && t.fullName !== t.name ? `<div class="detail-subtitle">${esc(t.fullName)}</div>` : ''}
+        <div class="detail-dates">${formatYears(t.born, t.died)} · ${esc(t.nationality || '')}</div>
+        <div class="detail-tags">${traditionTags}</div>
+      </div>
+      <div class="detail-body">
+        ${t.bio ? `<div class="detail-section"><div class="detail-bio">${esc(t.bio)}</div></div>` : ''}
+        ${t.disciplines ? `<div class="detail-section">
+          <div class="section-label">Disciplines</div>
+          <div class="detail-tags">${t.disciplines.map(d => `<span class="dtag">${esc(d)}</span>`).join('')}</div>
+        </div>` : ''}
+        ${quotesBy.length ? `<div class="detail-section">
+          <div class="section-label">Quotations by ${esc(t.name)} <span style="color:var(--text-muted);font-weight:400">— ${quotesBy.length}</span></div>
+          ${quotesBy.map(q => renderQuoteCard(q)).join('')}
+        </div>` : ''}
+        ${quotesAbout.length ? `<div class="detail-section">
+          <div class="section-label">Quotations About ${esc(t.name)} <span style="color:var(--text-muted);font-weight:400">— ${quotesAbout.length}</span></div>
+          ${quotesAbout.map(q => renderQuoteCard(q, true)).join('')}
+        </div>` : ''}
+        ${connections.length ? `<div class="detail-section">
+          <div class="section-label">Connections</div>
+          <div class="connections-list">
+            ${connections.map(c => `
+              <div class="connection-item" data-jump="${c.id}">
+                <span class="connection-dot" style="background:var(--node-thinker)"></span>
+                <span class="connection-label">${esc(c.name || c.id)}</span>
+                <span class="connection-relation">${c.dir === 'out' ? '' : '↩ '}${esc((c.relation||'').replace(/-/g,' '))}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>` : ''}
+      </div>
+    `;
+  }
+
+  function renderTradition(t) {
+    const members = D.thinkers.filter(th => (th.traditions||[]).includes(t.id));
+    return `
+      <div class="detail-header">
+        <div class="detail-type">Tradition</div>
+        <div class="detail-title">${esc(t.name)}</div>
+        <div class="detail-dates">${esc(t.period || '')}</div>
+      </div>
+      <div class="detail-body">
+        ${t.description ? `<div class="detail-section"><div class="detail-bio">${esc(t.description)}</div></div>` : ''}
+        ${members.length ? `<div class="detail-section">
+          <div class="section-label">Thinkers in this tradition <span style="color:var(--text-muted);font-weight:400">— ${members.length}</span></div>
+          <div class="connections-list">
+            ${members.map(m => `
+              <div class="connection-item" data-jump="${m.id}">
+                <span class="connection-dot" style="background:var(--node-thinker)"></span>
+                <span class="connection-label">${esc(m.name)}</span>
+                <span class="connection-relation">${formatYears(m.born, m.died)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>` : ''}
+      </div>
+    `;
+  }
+
+  function renderTheme(t) {
+    const quotes = D.quotes.filter(q => (q.themes||[]).includes(t.id));
+    const thinkerIds = [...new Set(quotes.map(q => q.thinker))];
+    return `
+      <div class="detail-header">
+        <div class="detail-type">Theme</div>
+        <div class="detail-title">${esc(t.name)}</div>
+      </div>
+      <div class="detail-body">
+        ${t.description ? `<div class="detail-section"><div class="detail-bio">${esc(t.description)}</div></div>` : ''}
+        ${thinkerIds.length ? `<div class="detail-section">
+          <div class="section-label">Engaged by</div>
+          <div class="detail-tags">
+            ${thinkerIds.map(id => {
+              const th = nodeById[id];
+              return th ? `<span class="dtag" data-jump="${id}">${esc(th.name)}</span>` : '';
+            }).join('')}
+          </div>
+        </div>` : ''}
+        ${quotes.length ? `<div class="detail-section">
+          <div class="section-label">Quotations on this theme <span style="color:var(--text-muted);font-weight:400">— ${quotes.length}</span></div>
+          ${quotes.map(q => renderQuoteCard(q, false, true)).join('')}
+        </div>` : ''}
+      </div>
+    `;
+  }
+
+  function renderQuoteCard(q, isAbout, showAttribution) {
+    const themeTags = (q.themes||[]).map(t => {
+      const theme = nodeById[t];
+      return theme ? `<span class="dtag theme" data-jump="${t}">${esc(theme.name)}</span>` : '';
+    }).join('');
+
+    const provClass = q.provenance?.type === 'primary' ? 'prov-primary' :
+                      q.provenance?.type === 'secondary' ? 'prov-secondary' : 'prov-tertiary';
+    const provLabel = q.provenance?.type || 'unknown';
+
+    const speaker = nodeById[q.thinker];
+    const attribution = showAttribution && speaker
+      ? `<div class="quote-context"><span style="color:var(--accent-gold-dim);text-transform:uppercase;letter-spacing:0.1em;font-size:0.65rem">${esc(speaker.name)}</span> · ${esc(q.context || '')}</div>`
+      : `<div class="quote-context">${esc(q.context || '')}</div>`;
+
+    const variantsHtml = q.variants && q.variants.length ? `
+      <div class="variants-section">
+        <div class="section-label" style="margin-bottom:0.5rem">Variant Translations</div>
+        ${q.variants.map(v => `
+          <div class="variant">${esc(v.text)}<br><span class="variant-source">${esc(v.source)}</span></div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    return `
+      <div class="quote-card">
+        <div class="quote-text">${esc(q.text)}</div>
+        ${attribution}
+        ${themeTags ? `<div class="quote-themes">${themeTags}</div>` : ''}
+        ${variantsHtml}
+        <div class="quote-citations">
+          <button class="cite-toggle"><span class="arrow">▸</span> Citation Details <span class="provenance-badge ${provClass}">${provLabel}</span></button>
+          <div class="cite-content">
+            ${q.citations?.chicago_footnote ? `<div class="cite-format">
+              <div class="cite-format-label">Chicago (Footnote)</div>
+              ${escMarkdown(q.citations.chicago_footnote)}
+            </div>` : ''}
+            ${q.citations?.chicago_bibliography ? `<div class="cite-format">
+              <div class="cite-format-label">Chicago (Bibliography)</div>
+              ${escMarkdown(q.citations.chicago_bibliography)}
+            </div>` : ''}
+            ${q.citations?.mla_intext ? `<div class="cite-format">
+              <div class="cite-format-label">MLA (In-Text)</div>
+              ${escMarkdown(q.citations.mla_intext)}
+            </div>` : ''}
+            ${q.citations?.mla_works_cited ? `<div class="cite-format">
+              <div class="cite-format-label">MLA (Works Cited)</div>
+              ${escMarkdown(q.citations.mla_works_cited)}
+            </div>` : ''}
+            ${q.provenance?.note ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;font-style:italic">Note: ${esc(q.provenance.note)}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function escMarkdown(s) {
+    if (!s) return '';
+    // Convert *italic* markdown to HTML
+    return esc(s).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  }
+
+  function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ─── Search ────────────────────────────────────────────────────────────────
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+  searchInput.addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    if (q.length < 2) { searchResults.classList.remove('open'); return; }
+    const matches = nodes.filter(n => n.name.toLowerCase().includes(q)).slice(0, 8);
+    if (matches.length === 0) { searchResults.classList.remove('open'); return; }
+    searchResults.innerHTML = matches.map(m =>
+      `<div class="search-result" data-jump="${m.id}">
+        <div class="sr-title">${esc(m.name)}</div>
+        <div class="sr-meta">${m.type === 'thinker' ? formatYears(m.data.born, m.data.died) : m.type}</div>
+      </div>`
+    ).join('');
+    searchResults.classList.add('open');
+    searchResults.querySelectorAll('.search-result').forEach(el => {
+      el.addEventListener('click', () => {
+        jumpToNode(el.dataset.jump);
+        searchInput.value = '';
+        searchResults.classList.remove('open');
+      });
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-container')) searchResults.classList.remove('open');
+  });
+
+  // ─── Controls ──────────────────────────────────────────────────────────────
+  window.resetView = function() {
+    selectedNodeId = null;
+    closeDetail();
+    Graph.zoomToFit(800, 80);
+  };
+
+  window.toggleLabels = function() {
+    showLabels = !showLabels;
+    document.getElementById('labelsBtn').style.opacity = showLabels ? 1 : 0.5;
+    Graph.refresh();
+  };
+
+  // ─── Keyboard ──────────────────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (searchResults.classList.contains('open')) searchResults.classList.remove('open');
+      else closeDetail();
+    }
+    if (e.key === '/' && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+    }
+  });
+
+  // ─── Welcome dismiss ───────────────────────────────────────────────────────
+  window.enterNexus = function() {
+    document.getElementById('welcome').classList.add('hidden');
+    setTimeout(() => Graph.zoomToFit(1500, 60), 300);
+  };
+
+})();
+</script>
+</body>
+</html>
