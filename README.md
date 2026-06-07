@@ -10,48 +10,42 @@
 
 A 3D, real-time knowledge graph of thinkers, themes, traditions, and the citations that connect them. Every quotation is anchored to its source through a rigorous citation apparatus — Chicago, MLA, with provenance chains tracing primary and secondary sources.
 
-Built with Three.js and force-graph physics. Atmospheric depth, ambient particle drift, glowing nodes, cinematic camera transitions. Inspired by TheBrain (focus-driven navigation) and the production aesthetics of Unity/Unreal sandbox interfaces.
+## Visual Architecture (v0.3)
 
-## Architecture
+The visualization is **content-reactive**: every node's size is computed from its actual data weight, and the layout responds.
 
-Static, client-side, deployable to GitHub Pages. No backend, no database.
+- **Thinker weight** = (quotes by × 3) + (quotes about × 2) + (network connections × 1.2) + (traditions × 0.5)
+- **Tradition weight** = (member count × 5) + (total quotes from members × 1.5)
+- **Theme weight** = (quote count × 2) + (thinker diversity × 1.5)
+
+Weights are mapped to visual size on a **logarithmic scale**, so dense schools (Enlightenment Liberalism, Catholic Thought) become commanding presences while sparse ones (Discordianism, Cyberpunk) remain visible as smaller orbs.
+
+**Traditions render as volumetric domain spheres** — translucent wireframe shells with a soft inner glow, scaled by content density. The wireframe slowly rotates, giving each tradition a sense of structural depth and living presence.
+
+## Data Model
 
 ```
 .
-├── index.html           # Application (HTML + CSS + JS)
-├── data/
-│   └── nexus.js         # Knowledge graph data
+├── index.html           # Application
+├── data/nexus.js        # Knowledge graph data
 ├── app.webmanifest      # PWA manifest
 ├── .nojekyll            # Disable Jekyll on GitHub Pages
 └── README.md
 ```
 
-## Controls
-
-- **Drag** to orbit the camera
-- **Scroll** to zoom in / out
-- **Right-click + drag** to pan
-- **Click** a node to focus on it
-- **Esc** to release focus and return to wide view
-- **/** to jump to search
-- **Auto-Orbit** button toggles cinematic rotation
-
-## Data Model
-
-Each quotation entry includes:
+Each quotation includes:
 - The text itself, with variant translations
 - Source context
-- Citations in Chicago (Notes-Bibliography) and MLA (9th ed.)
-- A provenance type marking primary, secondary, or tertiary access
-- Cross-references to themes and to subjects the quote concerns
+- Citations in Chicago and MLA
+- A provenance type (primary / secondary / tertiary)
+- Cross-references to themes and concerned thinkers
 
-Nodes:
-- **Thinkers** (gold) — people whose words are recorded
-- **Traditions** (red) — philosophical, religious, political schools
-- **Themes** (blue) — concepts traced across thinkers
+## Controls
 
-Edges encode: belongs-to (thinker→tradition), wrote-about (thinker→theme), and explicit relationships (influenced, contemporary, responded-to, etc.).
+- **Drag** to orbit · **Scroll** to zoom · **Right-click + drag** to pan
+- **Click** a node to focus · **Esc** to release
+- **/** to jump to search
 
 ---
 
-*Curated by [META-SETH](https://github.com/META-SETH). Version 0.2.0, June 2026.*
+*Curated by [META-SETH](https://github.com/META-SETH). Version 0.3.0, June 2026.*

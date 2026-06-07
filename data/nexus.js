@@ -167,6 +167,114 @@ window.nexusData = {
       disciplines: ["Military"],
       traditions: ["enlightenment-liberalism"],
       bio: "Bavarian-French military officer who served as a major general in the Continental Army during the American Revolutionary War."
+    },
+    {
+      id: "aristotle",
+      name: "Aristotle",
+      born: -384, died: -322,
+      nationality: "Greek",
+      disciplines: ["Philosophy", "Logic", "Ethics", "Politics", "Biology"],
+      traditions: ["classical-greek-philosophy"],
+      bio: "Greek philosopher and polymath, student of Plato and teacher of Alexander the Great. His writings cover virtually every subject of his day and form the foundation of much of Western intellectual tradition."
+    },
+    {
+      id: "socrates",
+      name: "Socrates",
+      born: -470, died: -399,
+      nationality: "Greek",
+      disciplines: ["Philosophy", "Ethics"],
+      traditions: ["classical-greek-philosophy"],
+      bio: "Athenian philosopher credited as a founder of Western philosophy. Known principally through the accounts of his students, especially Plato. His method of elenchus laid the groundwork for systematic philosophical inquiry."
+    },
+    {
+      id: "aquinas",
+      name: "Thomas Aquinas",
+      born: 1225, died: 1274,
+      nationality: "Italian",
+      disciplines: ["Theology", "Philosophy", "Metaphysics"],
+      traditions: ["catholicism"],
+      bio: "Italian Dominican friar, philosopher, and theologian. The foremost classical proponent of natural theology and the father of Thomism, synthesizing Aristotelian philosophy with Christian doctrine."
+    },
+    {
+      id: "augustine",
+      name: "Augustine of Hippo",
+      born: 354, died: 430,
+      nationality: "Roman African",
+      disciplines: ["Theology", "Philosophy"],
+      traditions: ["catholicism"],
+      bio: "North African theologian and philosopher, Bishop of Hippo Regius. One of the most important Church Fathers, his writings on grace, original sin, and the nature of God shaped Western Christianity."
+    },
+    {
+      id: "pascal",
+      name: "Blaise Pascal",
+      born: 1623, died: 1662,
+      nationality: "French",
+      disciplines: ["Theology", "Philosophy", "Mathematics", "Physics"],
+      traditions: ["catholicism"],
+      bio: "French mathematician, physicist, inventor, philosopher, and Catholic theologian. His Pensées contain some of the most profound religious philosophy in the Western tradition."
+    },
+    {
+      id: "locke",
+      name: "John Locke",
+      born: 1632, died: 1704,
+      nationality: "English",
+      disciplines: ["Philosophy", "Political Theory", "Epistemology"],
+      traditions: ["enlightenment-liberalism"],
+      bio: "English philosopher and physician, widely regarded as one of the most influential of Enlightenment thinkers. Foundational to classical liberalism and modern political theory."
+    },
+    {
+      id: "jefferson",
+      name: "Thomas Jefferson",
+      born: 1743, died: 1826,
+      nationality: "American",
+      disciplines: ["Statesmanship", "Political Theory"],
+      traditions: ["enlightenment-liberalism", "republicanism"],
+      bio: "American statesman, principal author of the Declaration of Independence, and 3rd President of the United States."
+    },
+    {
+      id: "hume",
+      name: "David Hume",
+      born: 1711, died: 1776,
+      nationality: "Scottish",
+      disciplines: ["Philosophy", "Epistemology", "History"],
+      traditions: ["enlightenment-liberalism", "skepticism"],
+      bio: "Scottish Enlightenment philosopher, historian, economist. A central figure of empiricism and skepticism, whose challenge to inductive reasoning awakened Kant from his 'dogmatic slumber.'"
+    },
+    {
+      id: "kierkegaard",
+      name: "Søren Kierkegaard",
+      born: 1813, died: 1855,
+      nationality: "Danish",
+      disciplines: ["Philosophy", "Theology"],
+      traditions: ["existentialism"],
+      bio: "Danish theologian, philosopher, and religious author. Widely considered the first existentialist philosopher, whose work on subjectivity, anxiety, and faith shaped 20th-century thought."
+    },
+    {
+      id: "hegel",
+      name: "Georg Wilhelm Friedrich Hegel",
+      born: 1770, died: 1831,
+      nationality: "German",
+      disciplines: ["Philosophy", "Logic", "History"],
+      traditions: ["german-idealism"],
+      bio: "German philosopher, the most important figure in German idealism. His dialectical method and philosophy of history exerted profound influence on Marx, existentialism, and continental philosophy."
+    },
+    {
+      id: "marcus-aurelius",
+      name: "Marcus Aurelius",
+      born: 121, died: 180,
+      nationality: "Roman",
+      disciplines: ["Philosophy", "Statesmanship"],
+      traditions: ["stoicism"],
+      bio: "Roman emperor and Stoic philosopher. His personal writings, the Meditations, remain one of the most widely read works of Stoic philosophy."
+    },
+    {
+      id: "epictetus",
+      name: "Epictetus",
+      born: 50, died: 135,
+      nationality: "Greek",
+      disciplines: ["Philosophy", "Ethics"],
+      traditions: ["stoicism"],
+      bio: "Greek Stoic philosopher born into slavery. His teachings, recorded by his student Arrian in the Discourses and Enchiridion, emphasize that suffering arises from trying to control what is uncontrollable."
     }
   ],
 
@@ -538,6 +646,216 @@ window.nexusData = {
         mla_works_cited: "Rushkoff, Douglas. *Program or Be Programmed*. OR Books, 2010."
       },
       provenance: { type: "primary" }
+    },
+    {
+      id: "arist-1",
+      thinker: "aristotle",
+      themes: ["virtue", "human-nature"],
+      text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+      context: "Often paraphrased from Nicomachean Ethics, Book II",
+      citations: {
+        chicago_footnote: "Often attributed to Aristotle as a summation of *Nicomachean Ethics*, Book II. The phrase as stated is Will Durant's paraphrase. See Will Durant, *The Story of Philosophy* (New York: Simon & Schuster, 1926), 76.",
+        chicago_bibliography: "Durant, Will. *The Story of Philosophy*. New York: Simon & Schuster, 1926.",
+        mla_intext: "(Durant 76)",
+        mla_works_cited: "Durant, Will. *The Story of Philosophy*. Simon & Schuster, 1926."
+      },
+      provenance: { type: "tertiary", note: "Frequently misattributed as a direct quotation from Aristotle. The phrasing originates with Will Durant's summation of Aristotle's argument in the Nicomachean Ethics." }
+    },
+    {
+      id: "arist-2",
+      thinker: "aristotle",
+      themes: ["epistemology", "human-nature"],
+      text: "All men by nature desire to know.",
+      context: "Metaphysics, Book I, opening line",
+      citations: {
+        chicago_footnote: "Aristotle, *Metaphysics*, trans. W.D. Ross, in *The Complete Works of Aristotle*, ed. Jonathan Barnes (Princeton: Princeton University Press, 1984), 980a.",
+        chicago_bibliography: "Aristotle. *Metaphysics*. Translated by W.D. Ross. In *The Complete Works of Aristotle*, edited by Jonathan Barnes. Princeton: Princeton University Press, 1984.",
+        mla_intext: "(Aristotle 980a)",
+        mla_works_cited: "Aristotle. *Metaphysics*. Translated by W.D. Ross. *The Complete Works of Aristotle*, edited by Jonathan Barnes, Princeton UP, 1984."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "socr-1",
+      thinker: "socrates",
+      themes: ["epistemology", "virtue"],
+      text: "The unexamined life is not worth living.",
+      context: "Plato, Apology 38a — Socrates' defense at his trial",
+      citations: {
+        chicago_footnote: "Plato, *Apology* 38a, in *Five Dialogues*, trans. G.M.A. Grube, 2nd ed. (Indianapolis: Hackett, 2002), 41.",
+        chicago_bibliography: "Plato. *Five Dialogues*. Translated by G.M.A. Grube. 2nd ed. Indianapolis: Hackett, 2002.",
+        mla_intext: "(Plato, *Apology* 38a)",
+        mla_works_cited: "Plato. *Five Dialogues*. Translated by G.M.A. Grube, 2nd ed., Hackett, 2002."
+      },
+      provenance: { type: "secondary", note: "Attributed to Socrates via Plato's dialogue; Socrates left no writings of his own." }
+    },
+    {
+      id: "aqui-1",
+      thinker: "aquinas",
+      themes: ["faith-reason"],
+      text: "To one who has faith, no explanation is necessary. To one without faith, no explanation is possible.",
+      context: "Widely attributed to Aquinas, but disputed",
+      citations: {
+        chicago_footnote: "Attributed to Thomas Aquinas; the precise locus in his works has not been identified. Frequently cited in popular and devotional literature.",
+        chicago_bibliography: "Attribution to Aquinas remains unverified in scholarly editions.",
+        mla_intext: "(Attributed to Aquinas)",
+        mla_works_cited: "Aquinas, Thomas. Attributed quotation; primary source unidentified."
+      },
+      provenance: { type: "tertiary", note: "Common attribution lacking scholarly confirmation in Aquinas's Summa Theologica or extant works. May be later paraphrase." }
+    },
+    {
+      id: "aqui-2",
+      thinker: "aquinas",
+      themes: ["epistemology", "faith-reason"],
+      text: "Wonder is the desire for knowledge.",
+      context: "Summa Theologica, I-II, Q. 32, A. 8",
+      citations: {
+        chicago_footnote: "Thomas Aquinas, *Summa Theologica*, trans. Fathers of the English Dominican Province (New York: Benziger Brothers, 1947), I-II, Q. 32, A. 8.",
+        chicago_bibliography: "Aquinas, Thomas. *Summa Theologica*. Translated by Fathers of the English Dominican Province. New York: Benziger Brothers, 1947.",
+        mla_intext: "(Aquinas I-II, Q. 32, A. 8)",
+        mla_works_cited: "Aquinas, Thomas. *Summa Theologica*. Translated by Fathers of the English Dominican Province, Benziger Brothers, 1947."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "augu-1",
+      thinker: "augustine",
+      themes: ["faith-reason", "suffering"],
+      text: "You have made us for yourself, O Lord, and our heart is restless until it rests in you.",
+      context: "Confessions, Book I, Chapter 1",
+      citations: {
+        chicago_footnote: "Augustine of Hippo, *Confessions*, trans. Henry Chadwick (Oxford: Oxford University Press, 1991), 3.",
+        chicago_bibliography: "Augustine of Hippo. *Confessions*. Translated by Henry Chadwick. Oxford: Oxford University Press, 1991.",
+        mla_intext: "(Augustine 3)",
+        mla_works_cited: "Augustine of Hippo. *Confessions*. Translated by Henry Chadwick, Oxford UP, 1991."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "pasc-1",
+      thinker: "pascal",
+      themes: ["faith-reason", "human-nature"],
+      text: "The heart has its reasons, of which reason knows nothing.",
+      context: "Pensées, Section IV, §277",
+      citations: {
+        chicago_footnote: "Blaise Pascal, *Pensées*, trans. A.J. Krailsheimer (London: Penguin, 1966), §277.",
+        chicago_bibliography: "Pascal, Blaise. *Pensées*. Translated by A.J. Krailsheimer. London: Penguin, 1966.",
+        mla_intext: "(Pascal §277)",
+        mla_works_cited: "Pascal, Blaise. *Pensées*. Translated by A.J. Krailsheimer, Penguin, 1966."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "pasc-2",
+      thinker: "pascal",
+      themes: ["human-nature", "suffering"],
+      text: "All of humanity's problems stem from man's inability to sit quietly in a room alone.",
+      context: "Pensées, §136",
+      citations: {
+        chicago_footnote: "Blaise Pascal, *Pensées*, trans. A.J. Krailsheimer (London: Penguin, 1966), §136.",
+        chicago_bibliography: "Pascal, Blaise. *Pensées*. Translated by A.J. Krailsheimer. London: Penguin, 1966.",
+        mla_intext: "(Pascal §136)",
+        mla_works_cited: "Pascal, Blaise. *Pensées*. Translated by A.J. Krailsheimer, Penguin, 1966."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "lock-1",
+      thinker: "locke",
+      themes: ["natural-rights", "liberty"],
+      text: "The end of law is not to abolish or restrain, but to preserve and enlarge freedom. For in all the states of created beings capable of laws, where there is no law, there is no freedom.",
+      context: "Second Treatise of Government, 1689, §57",
+      citations: {
+        chicago_footnote: "John Locke, *Two Treatises of Government*, ed. Peter Laslett (Cambridge: Cambridge University Press, 1988), §57.",
+        chicago_bibliography: "Locke, John. *Two Treatises of Government*. Edited by Peter Laslett. Cambridge: Cambridge University Press, 1988.",
+        mla_intext: "(Locke §57)",
+        mla_works_cited: "Locke, John. *Two Treatises of Government*. Edited by Peter Laslett, Cambridge UP, 1988."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "jeff-1",
+      thinker: "jefferson",
+      themes: ["liberty", "natural-rights"],
+      text: "I have sworn upon the altar of God eternal hostility against every form of tyranny over the mind of man.",
+      context: "Letter to Benjamin Rush, September 23, 1800",
+      citations: {
+        chicago_footnote: "Thomas Jefferson to Benjamin Rush, September 23, 1800, in *The Papers of Thomas Jefferson*, vol. 32, ed. Barbara B. Oberg (Princeton: Princeton University Press, 2005), 168.",
+        chicago_bibliography: "Jefferson, Thomas. *The Papers of Thomas Jefferson*. Vol. 32. Edited by Barbara B. Oberg. Princeton: Princeton University Press, 2005.",
+        mla_intext: "(Jefferson 168)",
+        mla_works_cited: "Jefferson, Thomas. *The Papers of Thomas Jefferson*. Vol. 32, edited by Barbara B. Oberg, Princeton UP, 2005."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "hume-1",
+      thinker: "hume",
+      themes: ["epistemology"],
+      text: "Reason is, and ought only to be the slave of the passions, and can never pretend to any other office than to serve and obey them.",
+      context: "A Treatise of Human Nature, Book II, Part III, Section III",
+      citations: {
+        chicago_footnote: "David Hume, *A Treatise of Human Nature*, ed. L.A. Selby-Bigge, 2nd ed. (Oxford: Clarendon Press, 1978), 415.",
+        chicago_bibliography: "Hume, David. *A Treatise of Human Nature*. Edited by L.A. Selby-Bigge. 2nd ed. Oxford: Clarendon Press, 1978.",
+        mla_intext: "(Hume 415)",
+        mla_works_cited: "Hume, David. *A Treatise of Human Nature*. Edited by L.A. Selby-Bigge, 2nd ed., Clarendon Press, 1978."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "kier-1",
+      thinker: "kierkegaard",
+      themes: ["free-will", "suffering", "faith-reason"],
+      text: "Anxiety is the dizziness of freedom.",
+      context: "The Concept of Anxiety, 1844",
+      citations: {
+        chicago_footnote: "Søren Kierkegaard, *The Concept of Anxiety*, trans. Reidar Thomte and Albert B. Anderson (Princeton: Princeton University Press, 1980), 61.",
+        chicago_bibliography: "Kierkegaard, Søren. *The Concept of Anxiety*. Translated by Reidar Thomte and Albert B. Anderson. Princeton: Princeton University Press, 1980.",
+        mla_intext: "(Kierkegaard 61)",
+        mla_works_cited: "Kierkegaard, Søren. *The Concept of Anxiety*. Translated by Reidar Thomte and Albert B. Anderson, Princeton UP, 1980."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "hege-1",
+      thinker: "hegel",
+      themes: ["epistemology", "tradition-vs-modernity"],
+      text: "The owl of Minerva spreads its wings only with the falling of the dusk.",
+      context: "Philosophy of Right, 1820, Preface",
+      citations: {
+        chicago_footnote: "G.W.F. Hegel, *Elements of the Philosophy of Right*, trans. H.B. Nisbet, ed. Allen W. Wood (Cambridge: Cambridge University Press, 1991), 23.",
+        chicago_bibliography: "Hegel, G.W.F. *Elements of the Philosophy of Right*. Translated by H.B. Nisbet. Edited by Allen W. Wood. Cambridge: Cambridge University Press, 1991.",
+        mla_intext: "(Hegel 23)",
+        mla_works_cited: "Hegel, G.W.F. *Elements of the Philosophy of Right*. Translated by H.B. Nisbet, edited by Allen W. Wood, Cambridge UP, 1991."
+      },
+      provenance: { type: "primary" }
+    },
+    {
+      id: "marc-1",
+      thinker: "marcus-aurelius",
+      themes: ["free-will", "virtue"],
+      text: "You have power over your mind — not outside events. Realize this, and you will find strength.",
+      context: "Meditations, Book IV (popular paraphrase)",
+      citations: {
+        chicago_footnote: "Often paraphrased from Marcus Aurelius, *Meditations*. The closest direct rendering is in IV.7: 'Take away the complaint, \"I have been harmed,\" and the harm is taken away.'",
+        chicago_bibliography: "Marcus Aurelius. *Meditations*. Translated by Gregory Hays. New York: Modern Library, 2002.",
+        mla_intext: "(Marcus Aurelius IV.7)",
+        mla_works_cited: "Marcus Aurelius. *Meditations*. Translated by Gregory Hays, Modern Library, 2002."
+      },
+      provenance: { type: "tertiary", note: "Popular paraphrase rather than direct translation; captures the Stoic dichotomy of control but is not verbatim from any extant edition." }
+    },
+    {
+      id: "epic-1",
+      thinker: "epictetus",
+      themes: ["free-will", "suffering"],
+      text: "It is not what happens to you, but how you react to it that matters.",
+      context: "Often attributed to Epictetus; paraphrase of Enchiridion §5",
+      citations: {
+        chicago_footnote: "Epictetus, *Enchiridion*, §5: 'Men are disturbed not by the things which happen, but by the opinions about the things.' Trans. George Long (London: George Bell and Sons, 1888).",
+        chicago_bibliography: "Epictetus. *The Discourses of Epictetus, with the Enchiridion and Fragments*. Translated by George Long. London: George Bell and Sons, 1888.",
+        mla_intext: "(Epictetus §5)",
+        mla_works_cited: "Epictetus. *The Discourses of Epictetus, with the Enchiridion and Fragments*. Translated by George Long, George Bell and Sons, 1888."
+      },
+      provenance: { type: "tertiary", note: "Modern paraphrase of Enchiridion §5; the original Greek reads more literally as concerning opinions about events rather than reactions to them." }
     }
   ],
 
@@ -562,6 +880,25 @@ window.nexusData = {
     { source: "taleb", target: "nietzsche", type: "admired" },
     { source: "rushkoff", target: "raw", type: "influenced-by" },
     { source: "stephenson", target: "raw", type: "influenced-by" },
-    { source: "raw", target: "machiavelli", type: "engaged-with" }
+    { source: "raw", target: "machiavelli", type: "engaged-with" },
+    { source: "aristotle", target: "plato", type: "influenced-by" },
+    { source: "plato", target: "socrates", type: "influenced-by" },
+    { source: "aquinas", target: "aristotle", type: "influenced-by" },
+    { source: "aquinas", target: "augustine", type: "influenced-by" },
+    { source: "pascal", target: "augustine", type: "influenced-by" },
+    { source: "kierkegaard", target: "pascal", type: "influenced-by" },
+    { source: "kierkegaard", target: "hegel", type: "responded-to" },
+    { source: "nietzsche", target: "kierkegaard", type: "influenced-by" },
+    { source: "hegel", target: "kant", type: "influenced-by" },
+    { source: "kant", target: "hume", type: "responded-to" },
+    { source: "jefferson", target: "locke", type: "influenced-by" },
+    { source: "jefferson", target: "lafayette", type: "contemporary" },
+    { source: "lafayette", target: "jefferson", type: "contemporary" },
+    { source: "locke", target: "aristotle", type: "engaged-with" },
+    { source: "marcus-aurelius", target: "epictetus", type: "influenced-by" },
+    { source: "taleb", target: "marcus-aurelius", type: "admired" },
+    { source: "chesterton", target: "aquinas", type: "engaged-with" },
+    { source: "cs-lewis", target: "augustine", type: "influenced-by" },
+    { source: "machiavelli", target: "aristotle", type: "engaged-with" }
   ]
 };

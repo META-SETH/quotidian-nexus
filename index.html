@@ -612,7 +612,7 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
     <div class="boot-glyph-core">Q</div>
   </div>
   <div class="boot-name">Quotidian <span class="accent">Nexus</span></div>
-  <div class="boot-tag">Transdisciplinary Archive · v0.2.0</div>
+  <div class="boot-tag">Transdisciplinary Archive · v0.3.0</div>
   <div class="boot-log" id="bootLog"></div>
   <div class="boot-progress"><div class="boot-progress-bar" id="bootBar"></div></div>
   <div class="boot-meta">
@@ -771,19 +771,69 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
     theme: 0x6aa0e0
   };
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // WEIGHT COMPUTATION — drives node sizing
+  // ─────────────────────────────────────────────────────────────────────────
+  function computeWeight(node) {
+    if (node.type === 'thinker') {
+      const quotesBy = D.quotes.filter(q => q.thinker === node.id).length;
+      const quotesAbout = D.quotes.filter(q => q.aboutThinker === node.id).length;
+      const connections = D.relationships.filter(r =>
+        r.source === node.id || r.target === node.id
+      ).length;
+      const tradCount = (node.data.traditions || []).length;
+      return Math.max(1, quotesBy * 3 + quotesAbout * 2 + connections * 1.2 + tradCount * 0.5);
+    }
+    if (node.type === 'tradition') {
+      const members = D.thinkers.filter(t => (t.traditions || []).includes(node.id));
+      const totalQuotes = members.reduce((sum, m) =>
+        sum + D.quotes.filter(q => q.thinker === m.id).length, 0);
+      return Math.max(1, members.length * 5 + totalQuotes * 1.5);
+    }
+    if (node.type === 'theme') {
+      const quoteCount = D.quotes.filter(q => (q.themes || []).includes(node.id)).length;
+      const thinkerSet = new Set(D.quotes.filter(q => (q.themes || []).includes(node.id)).map(q => q.thinker));
+      return Math.max(1, quoteCount * 2 + thinkerSet.size * 1.5);
+    }
+    return 1;
+  }
+
   D.thinkers.forEach(t => {
-    const n = { id:t.id, type:'thinker', name:t.name, data:t, val:7, color:NODE_COLORS.thinker };
+    const n = { id:t.id, type:'thinker', name:t.name, data:t, color:NODE_COLORS.thinker };
+    n.weight = computeWeight(n);
     nodes.push(n); nodeById[t.id] = n;
   });
   D.traditions.forEach(t => {
     if (!D.thinkers.some(thk => (thk.traditions||[]).includes(t.id))) return;
-    const n = { id:t.id, type:'tradition', name:t.name, data:t, val:11, color:NODE_COLORS.tradition };
+    const n = { id:t.id, type:'tradition', name:t.name, data:t, color:NODE_COLORS.tradition };
+    n.weight = computeWeight(n);
     nodes.push(n); nodeById[t.id] = n;
   });
   D.themes.forEach(t => {
     if (!D.quotes.some(q => (q.themes||[]).includes(t.id))) return;
-    const n = { id:t.id, type:'theme', name:t.name, data:t, val:5, color:NODE_COLORS.theme };
+    const n = { id:t.id, type:'theme', name:t.name, data:t, color:NODE_COLORS.theme };
+    n.weight = computeWeight(n);
     nodes.push(n); nodeById[t.id] = n;
+  });
+
+  // Log-scale weight → visual size with per-type ranges
+  const typeRanges = {
+    thinker:   { min: 4, max: 14 },
+    tradition: { min: 8, max: 26 },
+    theme:     { min: 3, max: 9 }
+  };
+  ['thinker','tradition','theme'].forEach(type => {
+    const ofType = nodes.filter(n => n.type === type);
+    if (!ofType.length) return;
+    const ws = ofType.map(n => n.weight);
+    const lMin = Math.log(Math.min(...ws) + 1);
+    const lMax = Math.log(Math.max(...ws) + 1);
+    const range = typeRanges[type];
+    ofType.forEach(n => {
+      const norm = lMax === lMin ? 0.5 : (Math.log(n.weight + 1) - lMin) / (lMax - lMin);
+      n.normalizedWeight = norm;
+      n.val = range.min + norm * (range.max - range.min);
+    });
   });
 
   D.thinkers.forEach(t => {
@@ -866,9 +916,21 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
       if (selectedNodeId) handleEscape();
     });
 
-  // Tune forces for less compact layout
-  Graph.d3Force('charge').strength(-280);
-  Graph.d3Force('link').distance(l => l.kind === 'belongs-to' ? 60 : l.kind === 'wrote-about' ? 50 : 70);
+  // Tune forces — give bigger traditions more breathing room
+  Graph.d3Force('charge').strength(n => {
+    if (n.type === 'tradition') return -480 - n.normalizedWeight * 400;
+    return -260;
+  });
+  Graph.d3Force('link').distance(l => {
+    const tgt = typeof l.target === 'object' ? l.target : nodeById[l.target];
+    const src = typeof l.source === 'object' ? l.source : nodeById[l.source];
+    if (l.kind === 'belongs-to') {
+      const tradW = (tgt && tgt.normalizedWeight) || 0.5;
+      return 50 + tradW * 80;
+    }
+    if (l.kind === 'wrote-about') return 55;
+    return 80;
+  });
 
   // ─────────────────────────────────────────────────────────────────────────
   // ENRICH THE SCENE: fog, ambient particles, soft lighting
@@ -931,6 +993,38 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
   function makeNodeObject(node) {
     const group = new THREE.Group();
     const baseSize = Math.cbrt(node.val) * 2.2;
+    const w = node.normalizedWeight || 0.5;
+
+    // ── TRADITION DOMAIN SPHERE ──
+    // For tradition nodes, render a much larger translucent volumetric sphere
+    // representing the school's "field of influence" — wireframe + soft inner glow.
+    if (node.type === 'tradition') {
+      const domainSize = baseSize * (4.5 + w * 3.5); // bigger for richer traditions
+      // Inner volumetric glow (back-faced sphere)
+      const innerGeo = new THREE.SphereGeometry(domainSize, 32, 32);
+      const innerMat = new THREE.MeshBasicMaterial({
+        color: node.color,
+        transparent: true,
+        opacity: 0.04 + w * 0.04,
+        depthWrite: false,
+        side: THREE.BackSide
+      });
+      const inner = new THREE.Mesh(innerGeo, innerMat);
+      group.add(inner);
+      // Wireframe shell
+      const wireGeo = new THREE.SphereGeometry(domainSize, 14, 14);
+      const wireMat = new THREE.LineBasicMaterial({
+        color: node.color,
+        transparent: true,
+        opacity: 0.12 + w * 0.12,
+      });
+      const wire = new THREE.LineSegments(
+        new THREE.WireframeGeometry(wireGeo),
+        wireMat
+      );
+      group.add(wire);
+      wire.userData.role = 'domain-wire';
+    }
 
     // Halo sprite (additive glow)
     const haloTex = makeHaloTexture();
@@ -978,8 +1072,8 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
     sphere.userData.role = 'sphere';
     group.add(sphere);
 
-    // Label (sprite-based text)
-    const labelSprite = makeLabelSprite(node.name, node.type);
+    // Label (sprite-based text) — scales with importance
+    const labelSprite = makeLabelSprite(node.name, node.type, w);
     labelSprite.position.set(0, baseSize + 8, 0);
     labelSprite.userData.role = 'label';
     group.add(labelSprite);
@@ -1040,9 +1134,11 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
     return tex;
   }
 
-  function makeLabelSprite(text, type) {
+  function makeLabelSprite(text, type, normWeight) {
     const padding = 20;
-    const fontSize = type === 'tradition' ? 52 : type === 'thinker' ? 46 : 40;
+    normWeight = normWeight == null ? 0.5 : normWeight;
+    const baseFonts = { tradition: 56, thinker: 44, theme: 36 };
+    const fontSize = Math.round(baseFonts[type] * (0.7 + normWeight * 0.6));
     const font = type === 'thinker' ? '500 ' + fontSize + 'px Inter, sans-serif' : fontSize + 'px Inter, sans-serif';
     const cnv = document.createElement('canvas');
     const ctx = cnv.getContext('2d');
@@ -1052,8 +1148,8 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
     cnv.height = fontSize + padding * 2;
     ctx.font = font;
     ctx.fillStyle = type === 'thinker' ? '#f0c989' : type === 'tradition' ? '#e89089' : '#8ab8eb';
-    ctx.shadowColor = 'rgba(0,0,0,0.9)';
-    ctx.shadowBlur = 12;
+    ctx.shadowColor = 'rgba(0,0,0,0.95)';
+    ctx.shadowBlur = 14;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, cnv.width/2, cnv.height/2);
@@ -1101,6 +1197,11 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
         const pulse = 1 + Math.sin(time * 1.2 + obj.parent.position.y * 0.01 + 1) * 0.04;
         const s = obj.userData.baseScale * pulse;
         obj.scale.set(s, s, 1);
+      }
+      // Slow rotation on tradition domain wireframes — gives life and depth
+      if (obj.userData && obj.userData.role === 'domain-wire') {
+        obj.rotation.y += 0.0015;
+        obj.rotation.x += 0.0008;
       }
     });
 
