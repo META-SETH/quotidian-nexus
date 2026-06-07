@@ -573,6 +573,7 @@ body { animation: glitch-flicker 8s infinite; }
   <button class="ctrl active" id="btn-labels"><span class="ctrl-glyph">Aa</span> Labels</button>
   <button class="ctrl" id="btn-rotate"><span class="ctrl-glyph">↻</span> Auto-Orbit</button>
   <button class="ctrl" id="btn-reset"><span class="ctrl-glyph">◌</span> Reset</button>
+  <button class="ctrl active" id="btn-sound"><span class="ctrl-glyph">♪</span> Sound</button>
 </div>
 
 <!-- Tip -->
@@ -593,6 +594,9 @@ body { animation: glitch-flicker 8s infinite; }
 <div class="atmo-grain"></div>
 <div class="atmo-scanlines"></div>
 <div class="atmo-vignette"></div>
+
+<!-- Ambient score -->
+<audio id="nexus-audio" loop preload="auto" src="assets/AtaraxiaArchives.mp3"></audio>
 
 <script src="data/nexus.js"></script>
 <script type="module">
@@ -650,10 +654,64 @@ bootLines.forEach((line, i) => {
   }, line.delay);
 });
 
+// ─────────────────────────────────────────────────────────────────────────
+// AMBIENT AUDIO — "Ataraxia Archives"
+// Browser autoplay policy requires a user gesture, so we start on Enter click.
+// ─────────────────────────────────────────────────────────────────────────
+const nexusAudio = document.getElementById('nexus-audio');
+let audioMuted = false;
+const TARGET_VOLUME = 0.55;     // ceiling so it sits *under* the experience
+const FADE_MS = 2500;
+
+function fadeAudioTo(target, duration) {
+  const start = nexusAudio.volume;
+  const delta = target - start;
+  const startTime = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    // ease-in-out
+    const eased = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
+    nexusAudio.volume = Math.max(0, Math.min(1, start + delta * eased));
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function startAudio() {
+  if (audioMuted) return;
+  nexusAudio.volume = 0;
+  const playPromise = nexusAudio.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      fadeAudioTo(TARGET_VOLUME, FADE_MS);
+    }).catch(() => {
+      // If the browser still blocks it, mark the toggle so the user can start it manually
+      document.getElementById('btn-sound').classList.remove('active');
+      audioMuted = true;
+    });
+  }
+}
+
 bootEnter.addEventListener('click', () => {
   if (!bootEnter.classList.contains('ready')) return;
   document.getElementById('boot').classList.add('hidden');
   setTimeout(() => { controls.autoRotate = false; }, 200);
+  startAudio();
+});
+
+// Sound toggle
+document.getElementById('btn-sound').addEventListener('click', () => {
+  audioMuted = !audioMuted;
+  const btn = document.getElementById('btn-sound');
+  btn.classList.toggle('active', !audioMuted);
+  btn.querySelector('.ctrl-glyph').textContent = audioMuted ? '♪̸' : '♪';
+  if (audioMuted) {
+    fadeAudioTo(0, 600);
+    setTimeout(() => { if (audioMuted) nexusAudio.pause(); }, 650);
+  } else {
+    if (nexusAudio.paused) nexusAudio.play().catch(()=>{});
+    fadeAudioTo(TARGET_VOLUME, 1200);
+  }
 });
 
 // ─────────────────────────────────────────────────────────────────────────
