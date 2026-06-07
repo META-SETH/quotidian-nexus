@@ -7,6 +7,7 @@
 <title>QUOTIDIAN NEXUS</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g'><stop offset='0%' stop-color='%23f0c989'/><stop offset='100%' stop-color='%23f0c989' stop-opacity='0'/></radialGradient></defs><circle cx='50' cy='50' r='40' fill='url(%23g)'/><circle cx='50' cy='50' r='12' fill='%23f0c989'/></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
 <script src="https://unpkg.com/3d-force-graph@1.73.4/dist/3d-force-graph.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -612,7 +613,7 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
     <div class="boot-glyph-core">Q</div>
   </div>
   <div class="boot-name">Quotidian <span class="accent">Nexus</span></div>
-  <div class="boot-tag">Transdisciplinary Archive · v0.3.0</div>
+  <div class="boot-tag">Transdisciplinary Archive · v0.3.1</div>
   <div class="boot-log" id="bootLog"></div>
   <div class="boot-progress"><div class="boot-progress-bar" id="bootBar"></div></div>
   <div class="boot-meta">
@@ -877,6 +878,11 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
   // ─────────────────────────────────────────────────────────────────────────
   // 3D GRAPH SETUP
   // ─────────────────────────────────────────────────────────────────────────
+  const THREE = window.THREE;
+  const THREE_OK = !!(THREE && THREE.SphereGeometry && THREE.Sprite);
+  if (!THREE_OK) {
+    console.warn('[Nexus] window.THREE not available — falling back to default node rendering');
+  }
   const elem = document.getElementById('graph');
   const Graph = ForceGraph3D({ controlType:'orbit' })(elem)
     .backgroundColor('#050510')
@@ -889,7 +895,7 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
     .nodeRelSize(4)
     .nodeOpacity(1)
     .showNavInfo(false)
-    .nodeThreeObject(node => makeNodeObject(node))
+    .nodeThreeObject(node => THREE_OK ? makeNodeObject(node) : null)
     .nodeThreeObjectExtend(true)
     .nodeColor(n => n.color === 0xf0c989 ? '#f0c989' : n.color === 0xd8736a ? '#d8736a' : '#6aa0e0')
     .linkColor(l => {
@@ -936,56 +942,57 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
   // ENRICH THE SCENE: fog, ambient particles, soft lighting
   // ─────────────────────────────────────────────────────────────────────────
   const scene = Graph.scene();
-  const THREE = window.THREE; // exposed by 3d-force-graph
-
-  // Fog for depth
-  scene.fog = new THREE.FogExp2(0x050510, 0.0006);
-
-  // Soft ambient + directional accent
-  const ambient = new THREE.AmbientLight(0xffffff, 0.9);
-  scene.add(ambient);
-  const keyLight = new THREE.PointLight(0xf0c989, 1.8, 2000);
-  keyLight.position.set(200, 250, 200);
-  scene.add(keyLight);
-  const fillLight = new THREE.PointLight(0x6aa0e0, 0.6, 2000);
-  fillLight.position.set(-300, -100, -200);
-  scene.add(fillLight);
-
-  // Ambient particle field — dust motes drifting in 3D
+  let particleGeo, velocities = [];
   const PARTICLE_COUNT = 1400;
-  const particleGeo = new THREE.BufferGeometry();
-  const positions = new Float32Array(PARTICLE_COUNT * 3);
-  const sizes = new Float32Array(PARTICLE_COUNT);
-  const velocities = [];
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const r = 600 + Math.random() * 700;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    positions[i*3]   = r * Math.sin(phi) * Math.cos(theta);
-    positions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-    positions[i*3+2] = r * Math.cos(phi);
-    sizes[i] = 0.5 + Math.random() * 1.5;
-    velocities.push({
-      x: (Math.random() - 0.5) * 0.05,
-      y: (Math.random() - 0.5) * 0.05,
-      z: (Math.random() - 0.5) * 0.05
+
+  if (THREE_OK) {
+    // Fog for depth
+    scene.fog = new THREE.FogExp2(0x050510, 0.0006);
+
+    // Soft ambient + directional accent
+    const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(ambient);
+    const keyLight = new THREE.PointLight(0xf0c989, 1.8, 2000);
+    keyLight.position.set(200, 250, 200);
+    scene.add(keyLight);
+    const fillLight = new THREE.PointLight(0x6aa0e0, 0.6, 2000);
+    fillLight.position.set(-300, -100, -200);
+    scene.add(fillLight);
+
+    // Ambient particle field — dust motes drifting in 3D
+    particleGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
+    const sizes = new Float32Array(PARTICLE_COUNT);
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const r = 600 + Math.random() * 700;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+      positions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+      positions[i*3+2] = r * Math.cos(phi);
+      sizes[i] = 0.5 + Math.random() * 1.5;
+      velocities.push({
+        x: (Math.random() - 0.5) * 0.05,
+        y: (Math.random() - 0.5) * 0.05,
+        z: (Math.random() - 0.5) * 0.05
+      });
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    const particleTex = makeParticleTexture();
+    const particleMat = new THREE.PointsMaterial({
+      size: 2.2,
+      map: particleTex,
+      color: 0xf0c989,
+      transparent: true,
+      opacity: 0.4,
+      sizeAttenuation: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
     });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
   }
-  particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  particleGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-  const particleTex = makeParticleTexture();
-  const particleMat = new THREE.PointsMaterial({
-    size: 2.2,
-    map: particleTex,
-    color: 0xf0c989,
-    transparent: true,
-    opacity: 0.4,
-    sizeAttenuation: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending
-  });
-  const particles = new THREE.Points(particleGeo, particleMat);
-  scene.add(particles);
 
   // ─────────────────────────────────────────────────────────────────────────
   // CUSTOM NODE OBJECTS — glowing orbs with halos
@@ -1168,23 +1175,24 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--void); c
   let time = 0;
   function animate() {
     time += 0.01;
-    // Particle drift
-    const posAttr = particleGeo.attributes.position;
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      posAttr.array[i*3]   += velocities[i].x;
-      posAttr.array[i*3+1] += velocities[i].y;
-      posAttr.array[i*3+2] += velocities[i].z;
-      // Wrap-around to keep particles in shell
-      const x = posAttr.array[i*3], y = posAttr.array[i*3+1], z = posAttr.array[i*3+2];
-      const r = Math.sqrt(x*x + y*y + z*z);
-      if (r > 1500 || r < 300) {
-        const nr = 600 + Math.random() * 400;
-        posAttr.array[i*3]   = (x / r) * nr;
-        posAttr.array[i*3+1] = (y / r) * nr;
-        posAttr.array[i*3+2] = (z / r) * nr;
+    // Particle drift (only if particles were created)
+    if (particleGeo) {
+      const posAttr = particleGeo.attributes.position;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        posAttr.array[i*3]   += velocities[i].x;
+        posAttr.array[i*3+1] += velocities[i].y;
+        posAttr.array[i*3+2] += velocities[i].z;
+        const x = posAttr.array[i*3], y = posAttr.array[i*3+1], z = posAttr.array[i*3+2];
+        const r = Math.sqrt(x*x + y*y + z*z);
+        if (r > 1500 || r < 300) {
+          const nr = 600 + Math.random() * 400;
+          posAttr.array[i*3]   = (x / r) * nr;
+          posAttr.array[i*3+1] = (y / r) * nr;
+          posAttr.array[i*3+2] = (z / r) * nr;
+        }
       }
+      posAttr.needsUpdate = true;
     }
-    posAttr.needsUpdate = true;
 
     // Node breathing (subtle scale pulse on the halos)
     scene.traverse(obj => {
