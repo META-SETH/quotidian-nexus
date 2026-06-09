@@ -33,7 +33,7 @@ intellectual territory:
 - **Hebrew**, full alephbet including final forms
 - **Numerals**, **mathematics** (∫ ∑ ∏ √ ∞ ∂ ∇ ⌈ ⌉ ⟨ ⟩), and **symbolic logic / set theory** (∀ ∃ ¬ ∧ ∨ ⊢ ⊨ ≡ ⇒ ⇔ ∈)
 - **Computer science & cybersecurity** artifacts ({ } => :: && || λ, hex and CIDR fragments)
-- **Esoteric accents**, appearing rarely: planetary/alchemical metal sigils (☉ ☽ ☿ ♀ ♂ ♃ ♄), alchemical element marks (🜂 🜁 🜃 🜄 🜍 🜔), zodiac, and sacred-geometry / masonic forms (△ ▽ ◇ ⊙ ✡ ⬡)
+- **Esoteric accents**, appearing rarely: planetary/alchemical metal sigils (☉ ☽ ☿ ♀ ♂ ♃ ♄), lunar nodes (☊ ☋), zodiac, stars and pentagram/hexagram, and sacred-geometry / masonic forms (△ ▽ ◇ ⊙ ⟁ ⬡). Symbols with color-emoji variants carry a text-presentation selector (U+FE0E) so they render as thin monochrome glyphs on mobile, not chunky emoji.
 
 The animation deliberately breaks the Matrix signature: columns drift with a gentle
 horizontal sway, occasionally stall to break the lockstep march, sometimes carry

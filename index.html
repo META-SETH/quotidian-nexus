@@ -680,16 +680,21 @@ body { animation: glitch-flicker 8s infinite; }
     ["{}[]()<>;:=&|!?/\\*+#@~^%$_", 5],                                 // CS artifacts
     ["λƒ∅⊤⊥→↛↻⟲⨁⊗·≜≟", 3],                                             // code / lambda flavor
     ["0x1A 0xFF 0b10 ::1 /24 \\x7f", 2],                               // cyber/hex/CIDR fragments
-    ["☉☽☿♀♁♂♃♄♅♆", 2],                                                  // planetary / alchemical metals
-    ["🜂🜁🜃🜄🜍🜔🜕🜚🜛", 1],                                             // alchemical elements & principles
-    ["♈♉♊♋♌♍♎♏♐♑♒♓", 1],                                                // zodiac
-    ["△▽◇□◈⬡⬢⊙◉✦✧✡⛤⟁∴⸫", 2],                                           // sacred geometry / masonic-esoteric
+    [T("☉☽☿♀♂♃♄♆☊☋"), 2],                                              // planetary / alchemical metals (text-forced)
+    [T("♈♉♊♋♌♍♎♏♐♑♒♓"), 1],                                            // zodiac (text-forced)
+    [T("✦✧✡⛤★☆⛧✴"), 1],                                                // stars / pentagram / hexagram (text-forced)
+    ["△▽◇□◈⬡⬢⊙◉⟁⊿⊾∴⸫", 2],                                            // sacred geometry / masonic — pure text glyphs
   ];
+  // Some symbols (planets, zodiac, stars) have COLOR-EMOJI forms that mobile
+  // OSes substitute, which looks janky. T() splits a set into code points and
+  // appends U+FE0E (text-presentation selector) to each, forcing monochrome
+  // text rendering across desktop and mobile.
+  function T(s) { return [...s].filter((c) => c !== " ").map((c) => c + "\uFE0E"); }
+
   // Build a weighted bag of set-indices for O(1) weighted selection.
-  // Pre-split each set into CODE POINTS ([...s]) so astral-plane glyphs like the
-  // alchemical symbols (🜂🜁…, U+1F700 block) aren't split mid-surrogate, and
-  // drop any separator spaces so they never fall.
-  const SETS = CORPUS.map(([s, w]) => [[...s].filter((c) => c !== " "), w]);
+  // Entries are either plain strings (split by CODE POINT so any astral glyph
+  // stays whole) or pre-tokenized arrays from T(); spaces are dropped.
+  const SETS = CORPUS.map(([s, w]) => [Array.isArray(s) ? s : [...s].filter((c) => c !== " "), w]);
   const BAG = [];
   SETS.forEach(([, w], i) => { for (let k = 0; k < w; k++) BAG.push(i); });
   function glyph() {
