@@ -37,7 +37,13 @@ intellectual territory:
 
 The animation deliberately breaks the Matrix signature: columns drift with a gentle
 horizontal sway, occasionally stall to break the lockstep march, sometimes carry
-oversized "major" glyphs, and periodically spawn held, glowing sigils. An
+oversized "major" glyphs, and periodically spawn held **sigil flares** — the
+system's voice interjecting over the parchment rain. Flares render in two local
+cyberpunk display fonts (NeoCyberpunk, SDGlitch — demo cuts, personal-use license)
+in GLITCHWAVE neon: a near-white core with cyan glow, flanked by magenta/cyan
+chromatic-aberration ghosts that split wider on the beat, with occasional
+horizontal glitch jitter. Since the demo fonts cover Latin letters only, flares
+draw from a dedicated A–Z + punctuation pool rather than the full rain corpus. An
 **opacity gradient keyed to distance from center** keeps the columns fully clear
 behind the boot panel and progressively more visible toward the screen edges. The
 fall **pulses on a fixed tempo** (configurable `BPM`, default 80) that phase-aligns
