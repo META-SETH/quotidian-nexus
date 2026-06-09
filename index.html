@@ -196,6 +196,44 @@ body { animation: glitch-flicker 8s infinite; }
   box-shadow:0 0 40px var(--cyan), 0 0 80px var(--cyan-dim);
 }
 
+/* ───────────── SPLASH AUDIO CONTROL ───────────── */
+.splash-audio {
+  position:absolute; bottom:1.75rem; right:1.75rem;
+  display:flex; align-items:center; gap:0.7rem;
+  background:var(--panel); backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+  padding:0.55rem 0.85rem;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.sa-toggle {
+  background:transparent; border:1px solid var(--cyan);
+  color:var(--cyan); cursor:pointer;
+  width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+  font-size:0.95rem; transition:all 0.18s;
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+.sa-toggle:hover { background:var(--cyan); color:var(--void); box-shadow:0 0 16px var(--cyan-glow); }
+.sa-toggle.muted { border-color:var(--text-dim); color:var(--text-dim); }
+.sa-volume {
+  -webkit-appearance:none; appearance:none;
+  width:90px; height:3px; background:var(--border-hi);
+  outline:none; cursor:pointer; border-radius:2px;
+}
+.sa-volume::-webkit-slider-thumb {
+  -webkit-appearance:none; appearance:none;
+  width:12px; height:12px; border-radius:50%;
+  background:var(--cyan); cursor:pointer;
+  box-shadow:0 0 8px var(--cyan);
+}
+.sa-volume::-moz-range-thumb {
+  width:12px; height:12px; border:none; border-radius:50%;
+  background:var(--cyan); cursor:pointer; box-shadow:0 0 8px var(--cyan);
+}
+.sa-label {
+  font-family:var(--font-mono); font-size:0.6rem;
+  letter-spacing:0.25em; color:var(--text-dim);
+}
+
 /* ───────────── 3D CANVAS ───────────── */
 #canvas-wrap { position:fixed; inset:0; z-index:5; }
 #canvas-wrap canvas { display:block; }
@@ -513,6 +551,15 @@ body { animation: glitch-flicker 8s infinite; }
     <span id="bootPct">0%</span>
   </div>
   <button class="boot-enter" id="bootEnter">// ENTER NEXUS</button>
+
+  <!-- Splash audio control (bottom-right) -->
+  <div class="splash-audio" id="splashAudio">
+    <button class="sa-toggle" id="saToggle" title="Mute / unmute">
+      <span class="sa-glyph" id="saGlyph">♪</span>
+    </button>
+    <input type="range" class="sa-volume" id="saVolume" min="0" max="100" value="55" title="Volume">
+    <span class="sa-label">AUDIO</span>
+  </div>
 </div>
 
 <!-- CANVAS -->
@@ -573,7 +620,6 @@ body { animation: glitch-flicker 8s infinite; }
   <button class="ctrl active" id="btn-labels"><span class="ctrl-glyph">Aa</span> Labels</button>
   <button class="ctrl" id="btn-rotate"><span class="ctrl-glyph">↻</span> Auto-Orbit</button>
   <button class="ctrl" id="btn-reset"><span class="ctrl-glyph">◌</span> Reset</button>
-  <button class="ctrl active" id="btn-sound"><span class="ctrl-glyph">♪</span> Sound</button>
 </div>
 
 <!-- Tip -->
@@ -655,63 +701,90 @@ bootLines.forEach((line, i) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────
-// AMBIENT AUDIO — "Ataraxia Archives"
-// Browser autoplay policy requires a user gesture, so we start on Enter click.
+// AMBIENT AUDIO — plays on the SPLASH screen, stops when entering the nexus.
+// Splash music attempts autoplay; if the browser blocks it (no gesture yet),
+// it starts on the first user interaction. A mute toggle + volume slider live
+// in the splash's bottom-right corner.
 // ─────────────────────────────────────────────────────────────────────────
 const nexusAudio = document.getElementById('nexus-audio');
-let audioMuted = false;
-const TARGET_VOLUME = 0.55;     // ceiling so it sits *under* the experience
-const FADE_MS = 2500;
+const saToggle = document.getElementById('saToggle');
+const saGlyph  = document.getElementById('saGlyph');
+const saVolume = document.getElementById('saVolume');
 
-function fadeAudioTo(target, duration) {
+let audioMuted = false;
+let userVolume = 0.55;                 // 0..1, driven by the slider (default 55%)
+nexusAudio.volume = userVolume;
+saVolume.value = Math.round(userVolume * 100);
+
+function fadeAudioTo(target, duration, after) {
   const start = nexusAudio.volume;
   const delta = target - start;
   const startTime = performance.now();
   function step(now) {
     const t = Math.min(1, (now - startTime) / duration);
-    // ease-in-out
     const eased = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
     nexusAudio.volume = Math.max(0, Math.min(1, start + delta * eased));
     if (t < 1) requestAnimationFrame(step);
+    else if (after) after();
   }
   requestAnimationFrame(step);
 }
 
-function startAudio() {
+// Attempt to start splash music immediately; fall back to first interaction.
+function trySplashAudio() {
   if (audioMuted) return;
   nexusAudio.volume = 0;
-  const playPromise = nexusAudio.play();
-  if (playPromise !== undefined) {
-    playPromise.then(() => {
-      fadeAudioTo(TARGET_VOLUME, FADE_MS);
-    }).catch(() => {
-      // If the browser still blocks it, mark the toggle so the user can start it manually
-      document.getElementById('btn-sound').classList.remove('active');
-      audioMuted = true;
-    });
+  const p = nexusAudio.play();
+  if (p !== undefined) {
+    p.then(() => fadeAudioTo(userVolume, 1800)).catch(() => armFirstInteraction());
+  }
+}
+function armFirstInteraction() {
+  const kick = () => {
+    if (!audioMuted && nexusAudio.paused) {
+      nexusAudio.volume = 0;
+      nexusAudio.play().then(() => fadeAudioTo(userVolume, 1800)).catch(()=>{});
+    }
+    window.removeEventListener('pointerdown', kick);
+    window.removeEventListener('keydown', kick);
+    window.removeEventListener('mousemove', kick);
+  };
+  window.addEventListener('pointerdown', kick, { once:true });
+  window.addEventListener('keydown', kick, { once:true });
+  window.addEventListener('mousemove', kick, { once:true });
+}
+trySplashAudio();
+
+// Volume slider
+saVolume.addEventListener('input', () => {
+  userVolume = saVolume.value / 100;
+  nexusAudio.volume = userVolume;
+  if (userVolume === 0) setMuted(true);
+  else if (audioMuted) setMuted(false);
+});
+
+function setMuted(m) {
+  audioMuted = m;
+  saToggle.classList.toggle('muted', m);
+  saGlyph.textContent = m ? '♪̸' : '♪';
+  if (m) {
+    nexusAudio.pause();
+  } else {
+    if (userVolume === 0) { userVolume = 0.55; saVolume.value = 55; }
+    nexusAudio.volume = userVolume;
+    if (nexusAudio.paused) nexusAudio.play().catch(()=>{});
   }
 }
 
+// Mute toggle
+saToggle.addEventListener('click', () => setMuted(!audioMuted));
+
+// Entering the nexus STOPS the splash music.
 bootEnter.addEventListener('click', () => {
   if (!bootEnter.classList.contains('ready')) return;
   document.getElementById('boot').classList.add('hidden');
   setTimeout(() => { controls.autoRotate = false; }, 200);
-  startAudio();
-});
-
-// Sound toggle
-document.getElementById('btn-sound').addEventListener('click', () => {
-  audioMuted = !audioMuted;
-  const btn = document.getElementById('btn-sound');
-  btn.classList.toggle('active', !audioMuted);
-  btn.querySelector('.ctrl-glyph').textContent = audioMuted ? '♪̸' : '♪';
-  if (audioMuted) {
-    fadeAudioTo(0, 600);
-    setTimeout(() => { if (audioMuted) nexusAudio.pause(); }, 650);
-  } else {
-    if (nexusAudio.paused) nexusAudio.play().catch(()=>{});
-    fadeAudioTo(TARGET_VOLUME, 1200);
-  }
+  fadeAudioTo(0, 700, () => nexusAudio.pause());
 });
 
 // ─────────────────────────────────────────────────────────────────────────
