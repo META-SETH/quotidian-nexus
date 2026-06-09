@@ -20,6 +20,21 @@ Rendered in native Three.js (r160) loaded via ES-module importmap. Three geodesi
 - **37 explicit relationships** (influenced, responded-to, contemporary, served-under, eulogized, etc.)
 
 
+## Splash Symbol Rain
+
+The splash screen features a Matrix-style digital rain flanking the boot panel —
+columns of falling glyphs drawn from many writing systems and notations: Latin,
+Greek, Hebrew, Cyrillic, and Katakana, plus numerals, mathematical operators
+(∫ ∑ ∏ √ ∞ ∂ ∇), set-theory and symbolic-logic symbols (∀ ∃ ¬ ∧ ∨ ⊢ ⊨ ⇒ ⇔),
+and computer-science artifacts (`{ } => != && || λ ::`).
+
+The rain is rendered faint and pale (medium-slow fall), with an **opacity gradient
+keyed to horizontal distance from center**: columns are fully clear behind the
+central boot panel and grow progressively more visible toward the screen edges, so
+the title and log text stay perfectly legible. The fall **pulses on a fixed tempo**
+(a configurable `BPM` constant, default 80) and phase-aligns to the moment the
+music begins playing.
+
 ## Ambient Score
 
 The **splash screen** plays an original ambient composition — *NEXUS SoundScape* — on a seamless loop. It attempts to autoplay on load and, if the browser blocks that (no user gesture yet), begins on the first interaction. A **mute toggle and volume slider** sit in the splash's bottom-right corner. Entering the nexus fades the music out and stops it — the main graph is silent.

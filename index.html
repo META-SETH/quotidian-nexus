@@ -198,7 +198,7 @@ body { animation: glitch-flicker 8s infinite; }
 
 /* ───────────── SPLASH AUDIO CONTROL ───────────── */
 .splash-audio {
-  position:absolute; bottom:1.75rem; right:1.75rem;
+  position:absolute; bottom:1.75rem; right:1.75rem; z-index:2;
   display:flex; align-items:center; gap:0.7rem;
   background:var(--panel); backdrop-filter:blur(20px);
   border:1px solid var(--border);
@@ -233,6 +233,14 @@ body { animation: glitch-flicker 8s infinite; }
   font-family:var(--font-mono); font-size:0.6rem;
   letter-spacing:0.25em; color:var(--text-dim);
 }
+
+/* ───────────── MATRIX SYMBOL RAIN (splash) ───────────── */
+.matrix-rain {
+  position:absolute; inset:0; z-index:0;
+  display:block; pointer-events:none;
+}
+/* keep all splash content above the rain (but don't disturb the audio control) */
+.boot > *:not(.matrix-rain):not(.splash-audio) { position:relative; z-index:1; }
 
 /* ───────────── 3D CANVAS ───────────── */
 #canvas-wrap { position:fixed; inset:0; z-index:5; }
@@ -536,6 +544,7 @@ body { animation: glitch-flicker 8s infinite; }
 
 <!-- BOOT -->
 <div class="boot" id="boot">
+  <canvas class="matrix-rain" id="matrixRain"></canvas>
   <div class="boot-sphere-wrap">
     <div class="boot-sphere-ring"></div>
     <div class="boot-sphere-ring"></div>
@@ -643,6 +652,114 @@ body { animation: glitch-flicker 8s infinite; }
 
 <!-- Ambient score -->
 <audio id="nexus-audio" loop preload="auto" src="assets/NEXUS_SoundScape.mp3"></audio>
+
+<!-- ───────────── MATRIX SYMBOL RAIN (splash screen) ───────────── -->
+<script>
+(function () {
+  const canvas = document.getElementById('matrixRain');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const audio = document.getElementById('nexus-audio');
+
+  // ── Glyph set: multi-alphabet + numerals + math + logic + CS artifacts ──
+  const SETS = [
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    "abcdefghijklmnopqrstuvwxyz",
+    "αβγδεζηθικλμνξοπρστυφχψω",          // Greek lower
+    "ΓΔΘΛΞΠΣΦΨΩ",                          // Greek upper (distinctive)
+    "אבגדהוזחטיכלמנסעפצקרשת",             // Hebrew
+    "АБВГДЕЖЗИЙКЛМНПРСТФЦЧШЩЭЮЯ",          // Cyrillic
+    "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン", // Katakana
+    "0123456789",
+    "∫∑∏√∞≠≅≈∂∇±×÷∝∠⊥∥∆∮",                 // math operators
+    "∀∃∄¬∧∨⊕⊗∈∉∋⊆⊇∪∩⊢⊨≡⇒⇔→↔",           // set theory / symbolic logic
+    "{}[]()<>;=&|!?/\\*+#@~^%",            // CS artifacts
+    "λ→ƒ::"                                // lambda / arrow / scope — code flavor
+  ];
+  const GLYPHS = SETS.join("");
+  const rand = (n) => (Math.random() * n) | 0;
+  const glyph = () => GLYPHS[rand(GLYPHS.length)];
+
+  // ── Tuning ──────────────────────────────────────────────────
+  const FONT_SIZE   = 16;     // px per glyph cell
+  const BASE_SPEED  = 0.16;   // rows/frame ≈ medium-slow fall
+  const SPEED_JITTER= 0.10;
+  const BPM         = 80;     // ← fixed tempo. Tweak to match the track's feel.
+  const CENTER_CLEAR= 0.16;   // inner fraction kept clear behind the boot panel
+  const VOID        = "#06040F";
+  const FADE        = "rgba(6,4,15,0.085)"; // lower alpha = longer trails
+
+  let W, H, cols, drops, colSpeed, colDist;
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cols = Math.floor(W / FONT_SIZE);
+    drops = new Array(cols);
+    colSpeed = new Array(cols);
+    colDist = new Array(cols);
+    const cx = W / 2;
+    for (let i = 0; i < cols; i++) {
+      drops[i] = Math.random() * -(H / FONT_SIZE);   // staggered starts above screen
+      colSpeed[i] = BASE_SPEED + Math.random() * SPEED_JITTER;
+      const x = i * FONT_SIZE + FONT_SIZE / 2;
+      let d = Math.abs(x - cx) / (W / 2);             // 0 at center → 1 at edges
+      d = Math.max(0, (d - CENTER_CLEAR) / (1 - CENTER_CLEAR));
+      colDist[i] = d * d;                             // quadratic ease: faint center, brighter out
+    }
+    ctx.fillStyle = VOID;
+    ctx.fillRect(0, 0, W, H);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ── Fixed-tempo beat clock; phase-aligns when the music actually starts ──
+  const beatMs = 60000 / BPM;
+  let beatStart = performance.now();
+  if (audio) audio.addEventListener('play', () => { beatStart = performance.now(); });
+  function beatPulse(now) {
+    const phase = ((now - beatStart) % beatMs) / beatMs;  // 0..1 within a beat
+    return Math.pow(1 - phase, 2.2);                       // sharp attack, smooth decay
+  }
+
+  const FONT = FONT_SIZE + "px 'JetBrains Mono', 'Noto Sans Mono', monospace";
+
+  function draw(now) {
+    // translucent fade rect → trailing tails
+    ctx.fillStyle = FADE;
+    ctx.fillRect(0, 0, W, H);
+
+    const pulse = beatPulse(now);
+    ctx.font = FONT;
+    ctx.textAlign = "center";
+
+    for (let i = 0; i < cols; i++) {
+      const dist = colDist[i];
+      const speed = colSpeed[i] * (1 + 0.45 * pulse);   // gentle beat speed-up
+      if (dist <= 0.001) { drops[i] += speed; continue; } // center columns: advance, draw nothing
+
+      const x = i * FONT_SIZE + FONT_SIZE / 2;
+      const y = drops[i] * FONT_SIZE;
+
+      // faint, pale, brighter toward edges; subtle lift on the beat
+      const baseA = (0.07 + 0.42 * dist) * (0.82 + 0.18 * pulse);
+
+      // dim trailing glyph (pale green)
+      ctx.fillStyle = "rgba(70,180,110," + (baseA * 0.55).toFixed(3) + ")";
+      ctx.fillText(glyph(), x, y - FONT_SIZE);
+
+      // bright leading glyph (pale green-white)
+      const headA = Math.min(0.85, baseA * 1.7 + 0.12 * pulse * dist);
+      ctx.fillStyle = "rgba(190,255,205," + headA.toFixed(3) + ")";
+      ctx.fillText(glyph(), x, y);
+
+      drops[i] += speed;
+      if (y > H && Math.random() > 0.975) drops[i] = Math.random() * -20; // staggered reset
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
 
 <script src="data/nexus.js"></script>
 <script type="module">
