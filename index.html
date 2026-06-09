@@ -653,108 +653,169 @@ body { animation: glitch-flicker 8s infinite; }
 <!-- Ambient score -->
 <audio id="nexus-audio" loop preload="auto" src="assets/NEXUS_SoundScape.mp3"></audio>
 
-<!-- ───────────── MATRIX SYMBOL RAIN (splash screen) ───────────── -->
+<!-- ───────────── SIGIL RAIN (splash screen) ───────────── -->
 <script>
 (function () {
   const canvas = document.getElementById('matrixRain');
   if (!canvas) return;
   const ctx = canvas.getContext('2d', { alpha: false });
   const audio = document.getElementById('nexus-audio');
-
-  // ── Glyph set: multi-alphabet + numerals + math + logic + CS artifacts ──
-  const SETS = [
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    "abcdefghijklmnopqrstuvwxyz",
-    "αβγδεζηθικλμνξοπρστυφχψω",          // Greek lower
-    "ΓΔΘΛΞΠΣΦΨΩ",                          // Greek upper (distinctive)
-    "אבגדהוזחטיכלמנסעפצקרשת",             // Hebrew
-    "АБВГДЕЖЗИЙКЛМНПРСТФЦЧШЩЭЮЯ",          // Cyrillic
-    "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン", // Katakana
-    "0123456789",
-    "∫∑∏√∞≠≅≈∂∇±×÷∝∠⊥∥∆∮",                 // math operators
-    "∀∃∄¬∧∨⊕⊗∈∉∋⊆⊇∪∩⊢⊨≡⇒⇔→↔",           // set theory / symbolic logic
-    "{}[]()<>;=&|!?/\\*+#@~^%",            // CS artifacts
-    "λ→ƒ::"                                // lambda / arrow / scope — code flavor
-  ];
-  const GLYPHS = SETS.join("");
   const rand = (n) => (Math.random() * n) | 0;
-  const glyph = () => GLYPHS[rand(GLYPHS.length)];
+  const pick = (s) => s[rand(s.length)];
 
-  // ── Tuning ──────────────────────────────────────────────────
-  const FONT_SIZE   = 16;     // px per glyph cell
-  const BASE_SPEED  = 0.16;   // rows/frame ≈ medium-slow fall
+  // ── Weighted multi-domain corpus ────────────────────────────────────────
+  // Each entry: [characters, relative weight]. Common scholarly/technical
+  // alphabets appear often; esoteric sigils are rarer accents, so they feel
+  // like something surfacing rather than noise.
+  const CORPUS = [
+    ["abcdefghijklmnopqrstuvwxyz", 5],                                  // Latin lower
+    ["ABCDEFGHIJKLMNOPQRSTUVWXYZ", 3],                                  // Latin upper
+    ["§¶†‡·æœðþ", 2],                                                   // Latin scribal marks
+    ["αβγδεζηθικλμνξοπρστυφχψω", 6],                                    // Greek lower (philosophy)
+    ["ΓΔΘΛΞΠΣΦΨΩ", 4],                                                  // Greek upper
+    ["אבגדהוזחטיכךלמםנןסעפףצץקרשת", 6],                                 // Hebrew (full, incl. finals)
+    ["0123456789", 4],                                                  // numerals
+    ["⊕⊻⊼⊽≪≫∴∵¬∧∨⊢⊨≡⇒⇔↦∈∉∀∃", 5],                                      // logic / set theory
+    ["∫∑∏√∞∂∇≈≅≠±×÷⌈⌉⌊⌋⟨⟩∮∝", 4],                                      // mathematics
+    ["{}[]()<>;:=&|!?/\\*+#@~^%$_", 5],                                 // CS artifacts
+    ["λƒ∅⊤⊥→↛↻⟲⨁⊗·≜≟", 3],                                             // code / lambda flavor
+    ["0x1A 0xFF 0b10 ::1 /24 \\x7f", 2],                               // cyber/hex/CIDR fragments
+    ["☉☽☿♀♁♂♃♄♅♆", 2],                                                  // planetary / alchemical metals
+    ["🜂🜁🜃🜄🜍🜔🜕🜚🜛", 1],                                             // alchemical elements & principles
+    ["♈♉♊♋♌♍♎♏♐♑♒♓", 1],                                                // zodiac
+    ["△▽◇□◈⬡⬢⊙◉✦✧✡⛤⟁∴⸫", 2],                                           // sacred geometry / masonic-esoteric
+  ];
+  // Build a weighted bag of set-indices for O(1) weighted selection.
+  // Pre-split each set into CODE POINTS ([...s]) so astral-plane glyphs like the
+  // alchemical symbols (🜂🜁…, U+1F700 block) aren't split mid-surrogate, and
+  // drop any separator spaces so they never fall.
+  const SETS = CORPUS.map(([s, w]) => [[...s].filter((c) => c !== " "), w]);
+  const BAG = [];
+  SETS.forEach(([, w], i) => { for (let k = 0; k < w; k++) BAG.push(i); });
+  function glyph() {
+    const arr = SETS[BAG[rand(BAG.length)]][0];
+    return arr[rand(arr.length)];
+  }
+
+  // ── Tuning ──────────────────────────────────────────────────────────────
+  const FONT_SIZE   = 16;
+  const BASE_SPEED  = 0.16;     // rows/frame — medium-slow (kept per your note)
   const SPEED_JITTER= 0.10;
-  const BPM         = 80;     // ← fixed tempo. Tweak to match the track's feel.
-  const CENTER_CLEAR= 0.16;   // inner fraction kept clear behind the boot panel
+  const STALL_CHANCE= 0.006;    // per-column chance/frame to pause briefly (breaks the march)
+  const SWAY_AMP    = 1.6;      // px of gentle horizontal drift
+  const BPM         = 80;       // fixed tempo (tweak to the track)
+  const CENTER_CLEAR= 0.16;     // inner fraction kept clear behind the boot panel
   const VOID        = "#06040F";
-  const FADE        = "rgba(6,4,15,0.085)"; // lower alpha = longer trails
+  const FADE        = "rgba(6,4,15,0.075)";
 
-  let W, H, cols, drops, colSpeed, colDist;
+  // Parchment-gold palette (dark bronze trail → pale gold head → bright flare)
+  const TRAIL = (a) => "rgba(150,112,58,"  + a.toFixed(3) + ")"; // muted bronze/sepia
+  const HEAD  = (a) => "rgba(232,202,132," + a.toFixed(3) + ")"; // pale gold
+  const FLARE = (a) => "rgba(245,224,156," + a.toFixed(3) + ")"; // luminous gold
+
+  let W, H, cols, col, sigils;
   function resize() {
     W = canvas.width  = window.innerWidth;
     H = canvas.height = window.innerHeight;
     cols = Math.floor(W / FONT_SIZE);
-    drops = new Array(cols);
-    colSpeed = new Array(cols);
-    colDist = new Array(cols);
+    col = new Array(cols);
     const cx = W / 2;
     for (let i = 0; i < cols; i++) {
-      drops[i] = Math.random() * -(H / FONT_SIZE);   // staggered starts above screen
-      colSpeed[i] = BASE_SPEED + Math.random() * SPEED_JITTER;
       const x = i * FONT_SIZE + FONT_SIZE / 2;
-      let d = Math.abs(x - cx) / (W / 2);             // 0 at center → 1 at edges
+      let d = Math.abs(x - cx) / (W / 2);
       d = Math.max(0, (d - CENTER_CLEAR) / (1 - CENTER_CLEAR));
-      colDist[i] = d * d;                             // quadratic ease: faint center, brighter out
+      col[i] = {
+        y: Math.random() * -(H / FONT_SIZE),
+        speed: BASE_SPEED + Math.random() * SPEED_JITTER,
+        dist: d * d,                          // faint center → brighter edges
+        stall: 0,                             // frames remaining in a pause
+        phase: Math.random() * Math.PI * 2,   // for individual sway offset
+        big: Math.random() < 0.06             // a few columns carry oversized "major" glyphs
+      };
     }
+    sigils = [];                              // held, glowing symbols that surface and fade
     ctx.fillStyle = VOID;
     ctx.fillRect(0, 0, W, H);
   }
   window.addEventListener('resize', resize);
   resize();
 
-  // ── Fixed-tempo beat clock; phase-aligns when the music actually starts ──
+  // ── Fixed-tempo beat clock; phase-aligns when music begins ────────────────
   const beatMs = 60000 / BPM;
   let beatStart = performance.now();
   if (audio) audio.addEventListener('play', () => { beatStart = performance.now(); });
-  function beatPulse(now) {
-    const phase = ((now - beatStart) % beatMs) / beatMs;  // 0..1 within a beat
-    return Math.pow(1 - phase, 2.2);                       // sharp attack, smooth decay
-  }
+  const beatPulse = (now) => Math.pow(1 - (((now - beatStart) % beatMs) / beatMs), 2.2);
 
-  const FONT = FONT_SIZE + "px 'JetBrains Mono', 'Noto Sans Mono', monospace";
+  const fontFor = (px) => px + "px 'JetBrains Mono', 'Noto Sans Mono', monospace";
 
   function draw(now) {
-    // translucent fade rect → trailing tails
     ctx.fillStyle = FADE;
     ctx.fillRect(0, 0, W, H);
-
-    const pulse = beatPulse(now);
-    ctx.font = FONT;
     ctx.textAlign = "center";
 
+    const pulse = beatPulse(now);
+    const t = now * 0.001;
+
+    // ── Falling columns ────────────────────────────────────────────────
+    ctx.font = fontFor(FONT_SIZE);
     for (let i = 0; i < cols; i++) {
-      const dist = colDist[i];
-      const speed = colSpeed[i] * (1 + 0.45 * pulse);   // gentle beat speed-up
-      if (dist <= 0.001) { drops[i] += speed; continue; } // center columns: advance, draw nothing
+      const c = col[i];
+      if (c.dist <= 0.001) {                     // center: advance silently
+        c.y += c.speed;
+        if (c.y * FONT_SIZE > H) c.y = Math.random() * -20;
+        continue;
+      }
 
-      const x = i * FONT_SIZE + FONT_SIZE / 2;
-      const y = drops[i] * FONT_SIZE;
+      const sway = Math.sin(t * 0.6 + c.phase) * SWAY_AMP * c.dist;
+      const x = i * FONT_SIZE + FONT_SIZE / 2 + sway;
+      const y = c.y * FONT_SIZE;
+      const baseA = (0.06 + 0.40 * c.dist) * (0.84 + 0.16 * pulse);
 
-      // faint, pale, brighter toward edges; subtle lift on the beat
-      const baseA = (0.07 + 0.42 * dist) * (0.82 + 0.18 * pulse);
-
-      // dim trailing glyph (pale green)
-      ctx.fillStyle = "rgba(70,180,110," + (baseA * 0.55).toFixed(3) + ")";
+      // trailing glyph (dim bronze)
+      ctx.font = fontFor(FONT_SIZE);
+      ctx.fillStyle = TRAIL(baseA * 0.5);
       ctx.fillText(glyph(), x, y - FONT_SIZE);
 
-      // bright leading glyph (pale green-white)
-      const headA = Math.min(0.85, baseA * 1.7 + 0.12 * pulse * dist);
-      ctx.fillStyle = "rgba(190,255,205," + headA.toFixed(3) + ")";
+      // leading glyph (pale gold); occasionally oversized for hierarchy
+      const headA = Math.min(0.82, baseA * 1.7 + 0.12 * pulse * c.dist);
+      if (c.big) ctx.font = fontFor(FONT_SIZE * 1.6);
+      ctx.fillStyle = HEAD(headA);
       ctx.fillText(glyph(), x, y);
 
-      drops[i] += speed;
-      if (y > H && Math.random() > 0.975) drops[i] = Math.random() * -20; // staggered reset
+      // occasionally spawn a held sigil flare at the head — a symbol "asserting itself"
+      if (c.dist > 0.25 && Math.random() < 0.0016 + 0.004 * pulse) {
+        sigils.push({ x, y, born: now, life: 1100 + Math.random() * 1400,
+                      ch: glyph(), a: headA, big: Math.random() < 0.4 });
+      }
+
+      // advance, with occasional stall to break the uniform march
+      if (c.stall > 0) { c.stall--; }
+      else {
+        c.y += c.speed * (1 + 0.4 * pulse);
+        if (Math.random() < STALL_CHANCE) c.stall = 8 + rand(22);
+      }
+      if (y > H && Math.random() > 0.975) {
+        c.y = Math.random() * -20;
+        c.big = Math.random() < 0.06;
+      }
     }
+
+    // ── Held sigil flares (glow in, hold, dissolve) ──────────────────────
+    for (let k = sigils.length - 1; k >= 0; k--) {
+      const s = sigils[k];
+      const age = (now - s.born) / s.life;        // 0..1
+      if (age >= 1) { sigils.splice(k, 1); continue; }
+      // envelope: quick rise, gentle fall
+      const env = age < 0.2 ? age / 0.2 : 1 - (age - 0.2) / 0.8;
+      const a = Math.min(0.9, s.a * 1.5) * env * (0.85 + 0.15 * pulse);
+      ctx.font = fontFor(FONT_SIZE * (s.big ? 1.9 : 1.25));
+      ctx.shadowColor = "rgba(245,224,156,0.9)";
+      ctx.shadowBlur = 12 * env;
+      ctx.fillStyle = FLARE(a);
+      ctx.fillText(s.ch, s.x, s.y);
+      ctx.shadowBlur = 0;
+    }
+
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);

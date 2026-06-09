@@ -20,20 +20,29 @@ Rendered in native Three.js (r160) loaded via ES-module importmap. Three geodesi
 - **37 explicit relationships** (influenced, responded-to, contemporary, served-under, eulogized, etc.)
 
 
-## Splash Symbol Rain
+## Splash Sigil Rain
 
-The splash screen features a Matrix-style digital rain flanking the boot panel —
-columns of falling glyphs drawn from many writing systems and notations: Latin,
-Greek, Hebrew, Cyrillic, and Katakana, plus numerals, mathematical operators
-(∫ ∑ ∏ √ ∞ ∂ ∇), set-theory and symbolic-logic symbols (∀ ∃ ¬ ∧ ∨ ⊢ ⊨ ⇒ ⇔),
-and computer-science artifacts (`{ } => != && || λ ::`).
+The splash screen features an original "sigil rain" flanking the boot panel — its
+own thing, not a Matrix homage. Glyphs fall in aged-parchment tones (dim bronze
+trails, pale-gold leading characters, with occasional luminous gold sigils that
+surface, glow, and dissolve). The corpus is weighted across the archive's own
+intellectual territory:
 
-The rain is rendered faint and pale (medium-slow fall), with an **opacity gradient
-keyed to horizontal distance from center**: columns are fully clear behind the
-central boot panel and grow progressively more visible toward the screen edges, so
-the title and log text stay perfectly legible. The fall **pulses on a fixed tempo**
-(a configurable `BPM` constant, default 80) and phase-aligns to the moment the
-music begins playing.
+- **Latin** letters and scribal marks (§ ¶ † ‡)
+- **Greek** upper and lower (the working alphabet of philosophy)
+- **Hebrew**, full alephbet including final forms
+- **Numerals**, **mathematics** (∫ ∑ ∏ √ ∞ ∂ ∇ ⌈ ⌉ ⟨ ⟩), and **symbolic logic / set theory** (∀ ∃ ¬ ∧ ∨ ⊢ ⊨ ≡ ⇒ ⇔ ∈)
+- **Computer science & cybersecurity** artifacts ({ } => :: && || λ, hex and CIDR fragments)
+- **Esoteric accents**, appearing rarely: planetary/alchemical metal sigils (☉ ☽ ☿ ♀ ♂ ♃ ♄), alchemical element marks (🜂 🜁 🜃 🜄 🜍 🜔), zodiac, and sacred-geometry / masonic forms (△ ▽ ◇ ⊙ ✡ ⬡)
+
+The animation deliberately breaks the Matrix signature: columns drift with a gentle
+horizontal sway, occasionally stall to break the lockstep march, sometimes carry
+oversized "major" glyphs, and periodically spawn held, glowing sigils. An
+**opacity gradient keyed to distance from center** keeps the columns fully clear
+behind the boot panel and progressively more visible toward the screen edges. The
+fall **pulses on a fixed tempo** (configurable `BPM`, default 80) that phase-aligns
+to the moment the music begins.
+
 
 ## Ambient Score
 
