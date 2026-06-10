@@ -32,6 +32,27 @@
   src: url('assets/fonts/SDGlitch_Demo.ttf') format('truetype');
   font-display: swap;
 }
+/* ── Site type system (local) ── */
+@font-face {
+  font-family: 'Deluxe';
+  src: url('assets/fonts/Deluxe.otf') format('opentype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ganter';
+  src: url('assets/fonts/Ganter-Demo.otf') format('opentype');
+  font-display: swap;
+  /* Demo cut: only A-Z a-z are true glyphs (digits/punct are ornaments,
+     accents missing). Everything else falls through to the stack. */
+  unicode-range: U+0020, U+0041-005A, U+0061-007A;
+}
+@font-face {
+  font-family: 'Ganter Slant';
+  src: url('assets/fonts/Ganter-DemoSlant.otf') format('opentype');
+  font-display: swap;
+  font-style: italic;
+  unicode-range: U+0020, U+0041-005A, U+0061-007A;
+}
 
 :root {
   /* ── GLITCHWAVE VOID ── */
@@ -74,6 +95,13 @@
   --font-display: 'Orbitron', 'Inter', system-ui, sans-serif;
   --font-body:    'Inter', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', Consolas, monospace;
+  /* ── Custom type system ──
+     brand  (Deluxe)       → macro identity: splash title, QN mark, HUD wordmark
+     head   (Ganter)       → named entities: panel titles, hover tooltips. NEVER digits (ornamental)
+     accent (Ganter Slant) → taglines/subtitles paired beneath brand or head elements */
+  --font-brand:  'Deluxe', 'Orbitron', sans-serif;
+  --font-head:   'Ganter', 'Orbitron', sans-serif;
+  --font-accent: 'Ganter Slant', 'Inter', sans-serif;
 }
 
 html, body {
@@ -148,7 +176,7 @@ body { animation: glitch-flicker 8s infinite; }
 .boot-sphere-core {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-display);
+  font-family:var(--font-brand);
   font-size:1.6rem; font-weight:800;
   color:var(--cyan);
   text-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan);
@@ -156,18 +184,20 @@ body { animation: glitch-flicker 8s infinite; }
 }
 
 .boot-title {
-  font-family:var(--font-display);
-  font-size:2rem; font-weight:700;
-  letter-spacing:0.12em;
+  font-family:var(--font-brand);
+  font-size:2rem; font-weight:400;
+  letter-spacing:0.1em;
   color:var(--glitch-white);
   text-shadow: 2px 0 0 var(--magenta), -2px 0 0 var(--cyan);
   margin-bottom:0.3rem;
 }
 .boot-tag {
-  font-size:0.65rem; letter-spacing:0.5em;
+  font-family:var(--font-accent); font-style:italic;
+  font-size:0.8rem; letter-spacing:0.32em;
   text-transform:uppercase; color:var(--text-dim);
   margin-bottom:2.5rem;
 }
+.boot-tag .ver { font-family:var(--font-mono); font-style:normal; font-size:0.62rem; letter-spacing:0.2em; }
 .boot-log {
   font-size:0.68rem; width:420px; max-width:90vw;
   height:110px; overflow:hidden; color:var(--text-dim);
@@ -265,14 +295,14 @@ body { animation: glitch-flicker 8s infinite; }
 /* Top-left brand */
 .hud-tl { top:1.5rem; left:1.5rem; display:flex; flex-direction:column; gap:0.25rem; }
 .brand-mark {
-  font-family:var(--font-display);
-  font-size:1.1rem; font-weight:700;
+  font-family:var(--font-brand);
+  font-size:1.1rem; font-weight:400;
   letter-spacing:0.15em; line-height:1;
   color:var(--glitch-white);
   text-shadow: 1px 0 0 var(--magenta), -1px 0 0 var(--cyan);
 }
 .brand-sub {
-  font-family:var(--font-mono); font-size:0.58rem; letter-spacing:0.35em;
+  font-family:var(--font-accent); font-style:italic; font-size:0.72rem; letter-spacing:0.22em;
   color:var(--text-dim); text-transform:uppercase; margin-top:0.1rem;
 }
 .brand-ver {
@@ -407,7 +437,7 @@ body { animation: glitch-flicker 8s infinite; }
 }
 .tooltip.show { opacity:1; }
 .tt-type { font-size:0.52rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--cyan); margin-bottom:0.18rem; }
-.tt-name { font-family:var(--font-display); font-size:0.82rem; color:var(--glitch-white); margin-bottom:0.12rem; letter-spacing:0.05em; }
+.tt-name { font-family:var(--font-head); font-size:0.95rem; font-weight:400; color:var(--glitch-white); margin-bottom:0.12rem; letter-spacing:0.05em; }
 .tt-meta { font-size:0.62rem; color:var(--text-dim); }
 
 /* ───────────── DETAIL PANEL ───────────── */
@@ -442,10 +472,10 @@ body { animation: glitch-flicker 8s infinite; }
 }
 .d-type::before { content:''; width:16px; height:1px; background:var(--cyan); box-shadow:0 0 8px var(--cyan); }
 .d-title {
-  font-family:var(--font-display); font-size:1.7rem; font-weight:700;
-  line-height:1.1; letter-spacing:0.05em; margin-bottom:0.35rem; color:var(--glitch-white);
+  font-family:var(--font-head); font-size:1.9rem; font-weight:400;
+  line-height:1.1; letter-spacing:0.04em; margin-bottom:0.35rem; color:var(--glitch-white);
 }
-.d-subtitle { font-family:var(--font-body); font-size:0.9rem; color:var(--text-dim); margin-bottom:0.35rem; font-style:italic; }
+.d-subtitle { font-family:var(--font-accent); font-style:italic; font-size:0.95rem; color:var(--text-dim); margin-bottom:0.35rem; }
 .d-coords { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-mute); letter-spacing:0.1em; }
 .d-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.8rem; }
 .dtag {
@@ -564,7 +594,7 @@ body { animation: glitch-flicker 8s infinite; }
     <div class="boot-sphere-core">QN</div>
   </div>
   <div class="boot-title">QUOTIDIAN NEXUS</div>
-  <div class="boot-tag">Transdisciplinary Glitch Archive · v0.3.0</div>
+  <div class="boot-tag">Transdisciplinary Glitch Archive <span class="ver">· v0.3.0</span></div>
   <div class="boot-log" id="bootLog"></div>
   <div class="boot-progress"><div class="boot-progress-bar" id="bootBar"></div></div>
   <div class="boot-meta">

@@ -20,6 +20,28 @@ Rendered in native Three.js (r160) loaded via ES-module importmap. Three geodesi
 - **37 explicit relationships** (influenced, responded-to, contemporary, served-under, eulogized, etc.)
 
 
+## Type System
+
+Six faces, each with one job, arranged symmetrically (every display element is a
+heavy/light pairing):
+
+| Layer | Face | Used for |
+|---|---|---|
+| **Brand** | Deluxe (stencil techno) | Splash title, QN sphere mark, HUD wordmark |
+| **Identity** | Ganter (geometric) | Detail-panel names, hover tooltips |
+| **Accent** | Ganter Slant | Taglines and subtitles paired beneath brand/identity elements |
+| **Reading** | Inter | Quote text, bios, citation prose — readability first |
+| **System** | JetBrains Mono | Telemetry, logs, buttons, dates, counts — anything with digits |
+| **Glitch** | NeoCyberpunk / SDGlitch | Splash sigil flares only |
+
+The Ganter demo cut contains true glyphs only for A–Z/a–z (its digits, punctuation
+and dashes are ornamental dingbats; accents are absent), so its `@font-face` rules
+carry a `unicode-range` restricted to letters — the browser pulls every other
+character (hyphens in "Marie-Joseph", the ø in "Søren") from the fallback stack
+per-character. The Slant face is declared `font-style: italic` so fallback
+characters are synthetically obliqued to match its angle. All faces are demo /
+personal-use cuts; their EULAs ship in `assets/fonts/`.
+
 ## Splash Sigil Rain
 
 The splash screen features an original "sigil rain" flanking the boot panel — its
