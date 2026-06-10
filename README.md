@@ -27,8 +27,8 @@ heavy/light pairing):
 
 | Layer | Face | Used for |
 |---|---|---|
-| **Brand** | Deluxe (stencil techno) | Splash title, QN sphere mark, HUD wordmark |
-| **Identity** | Ganter (geometric) | Detail-panel names, hover tooltips |
+| **Brand** | Deluxe (stencil techno) | HUD wordmark |
+| **Identity** | Ganter (geometric) | Splash title + QN mark (smoke treatment: faint silver with layered halo), detail-panel names, hover tooltips |
 | **Accent** | Ganter Slant | Taglines and subtitles paired beneath brand/identity elements |
 | **Reading** | Inter | Quote text, bios, citation prose — readability first |
 | **System** | JetBrains Mono | Telemetry, logs, buttons, dates, counts — anything with digits |

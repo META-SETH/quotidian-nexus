@@ -99,6 +99,12 @@
      brand  (Deluxe)       → macro identity: splash title, QN mark, HUD wordmark
      head   (Ganter)       → named entities: panel titles, hover tooltips. NEVER digits (ornamental)
      accent (Ganter Slant) → taglines/subtitles paired beneath brand or head elements */
+  /* smoke — faint silver-gray that pops via halo, not hue */
+  --smoke:        rgba(212,216,226,0.92);
+  --smoke-dim:    rgba(150,156,176,0.85);
+  --smoke-glow-1: rgba(225,230,242,0.38);
+  --smoke-glow-2: rgba(168,178,205,0.20);
+  --smoke-glow-3: rgba(140,150,185,0.10);
   --font-brand:  'Deluxe', 'Orbitron', sans-serif;
   --font-head:   'Ganter', 'Orbitron', sans-serif;
   --font-accent: 'Ganter Slant', 'Inter', sans-serif;
@@ -176,25 +182,28 @@ body { animation: glitch-flicker 8s infinite; }
 .boot-sphere-core {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-brand);
-  font-size:1.6rem; font-weight:800;
-  color:var(--cyan);
-  text-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan);
-  letter-spacing:0.05em;
+  font-family:var(--font-head);
+  font-size:1.7rem; font-weight:400;
+  color:var(--smoke);
+  text-shadow: 0 0 16px var(--smoke-glow-1), 0 0 38px var(--smoke-glow-2);
+  letter-spacing:0.12em;
 }
 
 .boot-title {
-  font-family:var(--font-brand);
-  font-size:2rem; font-weight:400;
-  letter-spacing:0.1em;
-  color:var(--glitch-white);
-  text-shadow: 2px 0 0 var(--magenta), -2px 0 0 var(--cyan);
+  font-family:var(--font-head);
+  font-size:2.45rem; font-weight:400;
+  letter-spacing:0.24em;
+  color:var(--smoke);
+  text-shadow:
+    0 0 14px var(--smoke-glow-1),
+    0 0 38px var(--smoke-glow-2),
+    0 0 80px var(--smoke-glow-3);
   margin-bottom:0.3rem;
 }
 .boot-tag {
   font-family:var(--font-accent); font-style:italic;
   font-size:0.8rem; letter-spacing:0.32em;
-  text-transform:uppercase; color:var(--text-dim);
+  text-transform:uppercase; color:var(--smoke-dim);
   margin-bottom:2.5rem;
 }
 .boot-tag .ver { font-family:var(--font-mono); font-style:normal; font-size:0.62rem; letter-spacing:0.2em; }
